@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактировать профиль - ByteLink{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center animated-fade-in">
+    <div class="col-lg-8 col-md-10 col-12">
+        <div class="glass-card p-5">
+            <h3 class="mb-4 text-light fw-bold"><i class="bi bi-gear-fill me-2 text-primary"></i>Настройки профиля</h3>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_first_name" class="form-label text-secondary small">Имя</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_last_name" class="form-label text-secondary small">Фамилия</label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_status_message" class="form-label text-secondary small">Статус (короткая фраза)</label>
+                    {{ form.status_message }}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_bio" class="form-label text-secondary small">О себе</label>
+                    {{ form.bio }}
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_location" class="form-label text-secondary small">Местоположение (Город, Страна)</label>
+                        {{ form.location }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_birth_date" class="form-label text-secondary small">Дата рождения</label>
+                        <!-- Using raw HTML or field widget value. Since we configured widget in forms.py, this will render correctly as date input -->
+                        {{ form.birth_date }}
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="id_website" class="form-label text-secondary small">Веб-сайт</label>
+                    {{ form.website }}
+                </div>
+                
+                <div class="row mb-5">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_avatar" class="form-label text-secondary small">Аватар (изображение)</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="{{ user.get_avatar_url }}" alt="avatar preview" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                            <input type="file" name="avatar" class="form-control" id="id_avatar" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_cover_image" class="form-label text-secondary small">Обложка профиля (изображение)</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="{{ user.get_cover_url }}" alt="cover preview" class="rounded-3" style="width: 80px; height: 50px; object-fit: cover;">
+                            <input type="file" name="cover_image" class="form-control" id="id_cover_image" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-3 justify-content-end">
+                    <a href="{% url 'profile' username=user.username %}" class="btn btn-outline-glass">Отмена</a>
+                    <button type="submit" class="btn btn-gradient">Сохранить изменения</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

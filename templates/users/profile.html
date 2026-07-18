@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ profile_user.first_name }} {{ profile_user.last_name }} (@{{ profile_user.username }}) - ByteLink{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center animated-fade-in">
+    <div class="col-lg-10 col-12">
+        <!-- Profile Header Widget -->
+        <div class="glass-card mb-4 overflow-hidden">
+            <!-- Cover image -->
+            <div class="profile-cover" style="background-image: url('{{ profile_user.get_cover_url }}');">
+                <div class="profile-avatar-container">
+                    <img src="{{ profile_user.get_avatar_url }}" alt="avatar" class="profile-avatar">
+                </div>
+            </div>
+            
+            <div class="profile-info-block pb-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-end pt-3">
+                    <div class="text-center text-md-start">
+                        <h2 class="mb-1 text-light fw-bold">{{ profile_user.first_name }} {{ profile_user.last_name }}</h2>
+                        <p class="text-secondary mb-2">@{{ profile_user.username }}</p>
+                        {% if profile_user.status_message %}
+                            <p class="text-info small mb-0"><i class="bi bi-quote me-1"></i>{{ profile_user.status_message }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-3 mt-md-0">
+                        {% if is_own_profile %}
+                            <a href="{% url 'profile_edit' %}" class="btn btn-outline-glass btn-sm"><i class="bi bi-pencil-square me-1"></i>Редактировать</a>
+                        {% else %}
+                            <button class="btn btn-gradient btn-sm me-2"><i class="bi bi-person-plus me-1"></i> Добавить в друзья</button>
+                            <button class="btn btn-outline-glass btn-sm"><i class="bi bi-chat-text me-1"></i> Сообщение</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail columns -->
+        <div class="row">
+            <!-- Left Info column -->
+            <div class="col-md-4 mb-4">
+                <div class="glass-card p-4">
+                    <h5 class="mb-4 text-light fw-bold"><i class="bi bi-info-circle me-2 text-primary"></i>Информация</h5>
+                    
+                    {% if profile_user.bio %}
+                        <div class="mb-3">
+                            <h6 class="text-secondary small mb-1">О себе</h6>
+                            <p class="text-light small mb-0">{{ profile_user.bio }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    <hr class="border-secondary my-3">
+                    
+                    <div class="d-flex flex-column gap-2 text-light small">
+                        {% if profile_user.location %}
+                            <div>
+                                <i class="bi bi-geo-alt me-2 text-secondary"></i>{{ profile_user.location }}
+                            </div>
+                        {% endif %}
+                        
+                        {% if profile_user.website %}
+                            <div>
+                                <i class="bi bi-link-45deg me-2 text-secondary"></i><a href="{{ profile_user.website }}" target="_blank" class="text-primary text-decoration-none">{{ profile_user.website }}</a>
+                            </div>
+                        {% endif %}
+                        
+                        {% if profile_user.birth_date %}
+                            <div>
+                                <i class="bi bi-calendar3 me-2 text-secondary"></i>{{ profile_user.birth_date|date:"d.m.Y" }}
+                            </div>
+                        {% endif %}
+                        
+                        <div>
+                            <i class="bi bi-shield-check me-2 text-secondary"></i>Роль: 
+                            <span class="badge {% if profile_user.role == 'admin' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                {{ profile_user.get_role_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Activity/Posts column -->
+            <div class="col-md-8">
+                <!-- If own profile, display publish trigger (placeholder) -->
+                {% if is_own_profile %}
+                    <div class="glass-card p-4 mb-4">
+                        <h5 class="mb-3 text-light">Новая публикация</h5>
+                        <div class="text-secondary small">Функционал публикации ваших собственных мыслей и медиафайлов появится на Неделе 2!</div>
+                    </div>
+                {% endif %}
+
+                <!-- Posts list (empty for now) -->
+                <div class="glass-card p-5 text-center">
+                    <div class="display-6 text-secondary mb-3"><i class="bi bi-card-list"></i></div>
+                    <h5 class="text-light">Нет публикаций</h5>
+                    <p class="text-secondary small mb-0">Здесь будут отображаться посты пользователя.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

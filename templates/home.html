@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная лента - ByteLink{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center animated-fade-in">
+    <!-- Left Column (User Mini-Profile Widget) -->
+    <div class="col-lg-3 mb-4 d-none d-lg-block">
+        <div class="glass-card p-3 text-center">
+            <div class="mb-3 position-relative" style="height: 80px;">
+                <div class="w-100 h-100 rounded-3" style="background-image: url('{{ user.get_cover_url }}'); background-size: cover; background-position: center;"></div>
+                <img src="{{ user.get_avatar_url }}" alt="avatar" class="rounded-circle border border-3 border-dark position-absolute start-50 translate-middle-x" style="width: 60px; height: 60px; bottom: -30px; object-fit: cover;">
+            </div>
+            <div class="mt-4">
+                <h5 class="mb-1"><a href="{% url 'profile' username=user.username %}" class="text-decoration-none text-light">{{ user.first_name }} {{ user.last_name }}</a></h5>
+                <p class="text-secondary small mb-2">@{{ user.username }}</p>
+                {% if user.status_message %}
+                    <p class="small text-secondary italic mb-3">"{{ user.status_message }}"</p>
+                {% endif %}
+                <hr class="border-secondary my-3">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="fw-bold text-light">0</div>
+                        <div class="text-secondary small">Друзья</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="fw-bold text-light">0</div>
+                        <div class="text-secondary small">Публикации</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Center Column (Feed / Welcome Card) -->
+    <div class="col-lg-6 col-md-9 col-12">
+        <!-- Publishing Placeholder (Form trigger will be added in Week 2) -->
+        <div class="glass-card p-4 mb-4">
+            <div class="d-flex align-items-center mb-3">
+                <img src="{{ user.get_avatar_url }}" alt="avatar" class="rounded-circle me-3" style="width: 42px; height: 42px; object-fit: cover;">
+                <div class="bg-dark rounded-pill flex-grow-1 py-2 px-4 border border-secondary text-secondary cursor-pointer" style="cursor: pointer; opacity: 0.85;" onclick="window.location.href='{% url 'profile' username=user.username %}'">
+                    Что нового, {{ user.first_name }}?
+                </div>
+            </div>
+            <div class="d-flex justify-content-between pt-2 border-top border-secondary small text-secondary">
+                <span><i class="bi bi-image me-1 text-primary"></i> Фото</span>
+                <span><i class="bi bi-play-btn me-1 text-success"></i> Видео</span>
+                <span><i class="bi bi-link-45deg me-1 text-warning"></i> Ссылка</span>
+            </div>
+        </div>
+
+        <!-- Main Feed list -->
+        <div class="glass-card p-5 text-center">
+            <div class="display-1 text-primary mb-3"><i class="bi bi-rocket-takeoff"></i></div>
+            <h3 class="mb-3">Добро пожаловать в ByteLink!</h3>
+            <p class="text-secondary mb-4">
+                Это ваша новостная лента. Со следующей недели вы сможете публиковать свои мысли, делиться фотографиями, добавлять друзей и подписываться на сообщества!
+            </p>
+            <a href="{% url 'profile_edit' %}" class="btn btn-gradient">Заполнить профиль</a>
+        </div>
+    </div>
+
+    <!-- Right Column (Widgets) -->
+    <div class="col-lg-3 col-md-3 col-12 d-none d-md-block">
+        <!-- Popular Users Widget -->
+        <div class="glass-card p-3 mb-4">
+            <h5 class="mb-3 text-light">Популярные люди</h5>
+            <div class="text-secondary small py-2">Здесь будут отображаться популярные пользователи, которых вы можете добавить в друзья.</div>
+        </div>
+
+        <!-- Popular Groups Widget -->
+        <div class="glass-card p-3">
+            <h5 class="mb-3 text-light">Интересные сообщества</h5>
+            <div class="text-secondary small py-2">Списки сообществ и популярных групп появятся совсем скоро!</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

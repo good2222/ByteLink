@@ -1,0 +1,6 @@
+django>=4.2,<5.1
+pymysql
+django-environ
+channels>=4.0.0
+daphne
+pillow

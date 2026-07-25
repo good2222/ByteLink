@@ -18,7 +18,7 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-created_at']  # default order; overridden in HomeView via annotate
         verbose_name = 'Публикация'
         verbose_name_plural = 'Публикации'
 

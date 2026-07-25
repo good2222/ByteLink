@@ -4,6 +4,7 @@ from django.views.generic import CreateView, DetailView, UpdateView, TemplateVie
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login
 from django.shortcuts import get_object_or_404
+from django.db.models import Count
 
 from .models import CustomUser
 from .forms import CustomUserCreationForm, UserProfileForm
@@ -34,13 +35,17 @@ class HomeView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['post_form'] = PostForm()
         context['comment_form'] = CommentForm()
-        # Get all posts ordered by date for feed
-        posts = Post.objects.select_related('author').prefetch_related('likes', 'comments__author').all()
-        
-        # Attach a helper property to check if current user liked the post
+        # annotate — добавляет виртуальное поле like_count = количество лайков каждого поста
+        # order_by('-like_count', '-created_at') — сначала самые популярные, при равенстве — новые
+        posts = (
+            Post.objects
+            .select_related('author')
+            .prefetch_related('likes', 'comments__author')
+            .annotate(like_count=Count('likes'))
+            .order_by('-like_count', '-created_at')
+        )
         for post in posts:
             post.is_liked = post.is_liked_by(self.request.user)
-            
         context['feed_posts'] = posts
         return context
 

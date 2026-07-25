@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from .models import Post, Comment, Like
 from .forms import PostForm, CommentForm
 
+
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
@@ -16,8 +17,8 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        # Redirect back to referring page or home
         return self.request.META.get('HTTP_REFERER', reverse_lazy('home'))
+
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
@@ -28,6 +29,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return self.request.META.get('HTTP_REFERER', reverse_lazy('home'))
+
 
 class LikeToggleView(LoginRequiredMixin, View):
     def post(self, request, pk):
@@ -45,8 +47,9 @@ class LikeToggleView(LoginRequiredMixin, View):
                 'liked': liked,
                 'count': post.likes.count()
             })
-        
+
         return redirect(request.META.get('HTTP_REFERER', 'home'))
+
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
@@ -60,6 +63,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return self.request.META.get('HTTP_REFERER', reverse_lazy('home'))
+
 
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment

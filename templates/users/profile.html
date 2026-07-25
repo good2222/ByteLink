@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ profile_user.first_name }} {{ profile_user.last_name }} (@{{ profile_user.username }}) - ByteLink{% endblock %}
+{% block title %}{{ profile_user.first_name|default:profile_user.username }} {{ profile_user.last_name }} (@{{ profile_user.username }}) - ByteLink{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center animated-fade-in">
@@ -17,7 +17,7 @@
             <div class="profile-info-block pb-4">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-end pt-3">
                     <div class="text-center text-md-start">
-                        <h2 class="mb-1 text-light fw-bold">{{ profile_user.first_name }} {{ profile_user.last_name }}</h2>
+                        <h2 class="mb-1 text-light fw-bold">{{ profile_user.first_name|default:profile_user.username }} {{ profile_user.last_name }}</h2>
                         <p class="text-secondary mb-2">@{{ profile_user.username }}</p>
                         {% if profile_user.status_message %}
                             <p class="text-info small mb-0"><i class="bi bi-quote me-1"></i>{{ profile_user.status_message }}</p>
@@ -73,7 +73,7 @@
                         
                         <div>
                             <i class="bi bi-shield-check me-2 text-secondary"></i>Роль: 
-                            <span class="badge {% if profile_user.role == 'admin' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                            <span class="badge badge-role ms-1">
                                 {{ profile_user.get_role_display }}
                             </span>
                         </div>
@@ -83,20 +83,120 @@
 
             <!-- Right Activity/Posts column -->
             <div class="col-md-8">
-                <!-- If own profile, display publish trigger (placeholder) -->
+                <!-- If own profile, display publish form -->
                 {% if is_own_profile %}
                     <div class="glass-card p-4 mb-4">
-                        <h5 class="mb-3 text-light">Новая публикация</h5>
-                        <div class="text-secondary small">Функционал публикации ваших собственных мыслей и медиафайлов появится на Неделе 2!</div>
+                        <h5 class="text-light mb-3"><i class="bi bi-pencil-square me-2 text-primary"></i>Опубликовать запись</h5>
+                        <form action="{% url 'post_create' %}" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ post_form.content }}
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <label for="id_image_profile" class="btn btn-outline-glass btn-sm mb-0">
+                                        <i class="bi bi-image me-1 text-primary"></i> Прикрепить фото
+                                    </label>
+                                    <input type="file" name="image" id="id_image_profile" class="form-control" accept="image/*" style="display:none;" onchange="document.getElementById('file-chosen').textContent = this.files[0].name">
+                                    <span id="file-chosen" class="small text-secondary ms-2"></span>
+                                </div>
+                                <button type="submit" class="btn btn-gradient btn-sm px-4">Опубликовать</button>
+                            </div>
+                        </form>
                     </div>
                 {% endif %}
 
-                <!-- Posts list (empty for now) -->
-                <div class="glass-card p-5 text-center">
-                    <div class="display-6 text-secondary mb-3"><i class="bi bi-card-list"></i></div>
-                    <h5 class="text-light">Нет публикаций</h5>
-                    <p class="text-secondary small mb-0">Здесь будут отображаться посты пользователя.</p>
-                </div>
+                <!-- User Posts List -->
+                {% if user_posts %}
+                    {% for post in user_posts %}
+                        <div class="glass-card post-card p-4 mb-4">
+                            <!-- Post Header -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ post.author.get_avatar_url }}" alt="avatar" class="post-avatar me-3">
+                                    <div>
+                                        <h6 class="mb-0 text-light fw-bold">{{ post.author.first_name|default:post.author.username }} {{ post.author.last_name }}</h6>
+                                        <div class="text-secondary small">@{{ post.author.username }} &bull; {{ post.created_at|timesince }} назад</div>
+                                    </div>
+                                </div>
+                                {% if post.author == user or user.is_site_admin %}
+                                    <form action="{% url 'post_delete' pk=post.pk %}" method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link text-danger p-0" title="Удалить" onclick="return confirm('Удалить эту публикацию?');">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+
+                            <!-- Post Body -->
+                            <p class="text-light mb-3" style="white-space: pre-line;">{{ post.content }}</p>
+                            {% if post.image %}
+                                <div class="mb-3">
+                                    <img src="{{ post.image.url }}" class="post-image" alt="Post Image">
+                                </div>
+                            {% endif %}
+
+                            <!-- Post Actions -->
+                            <div class="post-actions d-flex align-items-center justify-content-between">
+                                <form action="{% url 'post_like' pk=post.pk %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-like {% if post.is_liked %}active{% endif %}">
+                                        <i class="bi {% if post.is_liked %}bi-heart-fill text-danger{% else %}bi-heart{% endif %} me-1"></i>
+                                        <span>{{ post.likes_count }}</span>
+                                    </button>
+                                </form>
+                                <span class="text-secondary small">
+                                    <i class="bi bi-chat-left-text me-1"></i> {{ post.comments_count }} коммент.
+                                </span>
+                            </div>
+
+                            <!-- Comments Section -->
+                            <div class="mt-3 pt-3 border-top border-secondary">
+                                <form action="{% url 'comment_create' pk=post.pk %}" method="post" class="d-flex mb-3 gap-2">
+                                    {% csrf_token %}
+                                    {{ comment_form.text }}
+                                    <button type="submit" class="btn btn-gradient btn-sm px-3">
+                                        <i class="bi bi-send"></i>
+                                    </button>
+                                </form>
+
+                                {% for comment in post.comments.all %}
+                                    <div class="comment-box mb-2">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="d-flex align-items-center mb-1">
+                                                <a href="{% url 'profile' username=comment.author.username %}">
+                                                    <img src="{{ comment.author.get_avatar_url }}" alt="avatar" class="comment-avatar me-2">
+                                                </a>
+                                                <strong>
+                                                    <a href="{% url 'profile' username=comment.author.username %}" class="text-decoration-none text-light small">
+                                                        {{ comment.author.username }}
+                                                    </a>
+                                                </strong>
+                                                <span class="text-muted ms-2" style="font-size: 0.75rem;">{{ comment.created_at|timesince }} ago</span>
+                                            </div>
+                                            {% if comment.author == user or post.author == user or user.is_site_admin %}
+                                                <form action="{% url 'comment_delete' pk=comment.pk %}" method="post">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-link text-danger p-0" style="font-size: 0.75rem;" title="Удалить">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                        <p class="mb-0 text-light small ms-4">{{ comment.text }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="glass-card p-5 text-center">
+                        <div class="display-6 text-secondary mb-3"><i class="bi bi-card-list"></i></div>
+                        <h5 class="text-light">Публикаций пока нет</h5>
+                        <p class="text-secondary small mb-0">Пользователь ještě ничего не опубликовал.</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>

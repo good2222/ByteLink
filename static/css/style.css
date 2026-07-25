@@ -1,87 +1,110 @@
+/* ==========================================================================
+   ByteLink - Glossy Dark Theme (Глянцевый ночной стиль)
+   ========================================================================== */
+
 :root {
-    --bg-color: #0b0f19;
-    --card-bg: rgba(22, 28, 45, 0.7);
-    --card-border: rgba(255, 255, 255, 0.08);
-    --text-primary: #f3f4f6;
-    --text-secondary: #9ca3af;
-    --accent-primary: #6366f1; /* Indigo */
-    --accent-secondary: #a855f7; /* Purple */
-    --glow-color: rgba(99, 102, 241, 0.15);
-    --font-main: 'Inter', sans-serif;
-    --font-headings: 'Outfit', sans-serif;
+    --bg-dark: #0a0c10;
+    --bg-gradient: radial-gradient(circle at 50% 0%, #171b26 0%, #0a0c10 75%);
+    --card-bg: rgba(22, 27, 38, 0.65);
+    --card-bg-hover: rgba(30, 37, 52, 0.75);
+    --card-border: rgba(255, 255, 255, 0.12);
+    --card-border-glow: rgba(99, 102, 241, 0.35);
+    --glass-shine: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%);
+    
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    
+    --accent-blue: #3b82f6;
+    --accent-purple: #8b5cf6;
+    --accent-pink: #ec4899;
+    --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    --accent-gradient-hover: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+    
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-headings: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 body {
-    background-color: var(--bg-color);
-    background-image: 
-        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
+    background: var(--bg-dark);
+    background-image: var(--bg-gradient);
     background-attachment: fixed;
     color: var(--text-primary);
     font-family: var(--font-main);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    margin: 0;
 }
 
 h1, h2, h3, h4, h5, h6, .navbar-brand {
     font-family: var(--font-headings);
     font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
-/* Glassmorphism card styles */
+/* --------------------------------------------------------------------------
+ *  Glossy Cards & Containers
+ * -------------------------------------------------------------------------- */
 .glass-card {
     background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--card-border);
     border-radius: 16px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.25s ease-in-out;
+    position: relative;
+    overflow: hidden;
 }
 
 .glass-card:hover {
-    border-color: rgba(99, 102, 241, 0.25);
-    box-shadow: 0 8px 32px 0 rgba(99, 102, 241, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-/* Base input styling */
-.form-control, .form-select {
+/* --------------------------------------------------------------------------
+ *  Form Inputs
+ * -------------------------------------------------------------------------- */
+.form-control, .form-select, textarea {
     background-color: rgba(15, 23, 42, 0.6) !important;
-    border: 1px solid var(--card-border) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
     color: var(--text-primary) !important;
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 0.75rem 1rem;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease-in-out;
+    backdrop-filter: blur(8px);
 }
 
 .form-control::placeholder {
-    color: #6b7280;
+    color: #64748b;
 }
 
-.form-control:focus, .form-select:focus {
-    background-color: rgba(15, 23, 42, 0.9) !important;
-    border-color: var(--accent-primary) !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+.form-control:focus, .form-select:focus, textarea:focus {
+    background-color: rgba(15, 23, 42, 0.85) !important;
+    border-color: var(--accent-blue) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25), 0 0 15px rgba(99, 102, 241, 0.2) !important;
     outline: none;
 }
 
-/* Custom buttons styling */
+/* --------------------------------------------------------------------------
+ *  Buttons
+ * -------------------------------------------------------------------------- */
 .btn-gradient {
-    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    background: var(--accent-gradient);
     border: none;
-    color: #fff;
+    color: #ffffff !important;
     font-weight: 600;
-    padding: 0.75rem 1.5rem;
+    padding: 0.65rem 1.4rem;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+    transition: all 0.2s ease-in-out;
 }
 
 .btn-gradient:hover {
+    background: var(--accent-gradient-hover);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
-    color: #fff;
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.45);
 }
 
 .btn-gradient:active {
@@ -91,123 +114,157 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
 .btn-outline-glass {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--card-border);
-    color: var(--text-primary);
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
+    color: var(--text-primary) !important;
+    font-weight: 500;
+    padding: 0.65rem 1.4rem;
     border-radius: 10px;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .btn-outline-glass:hover {
     background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: #fff;
+    border-color: rgba(255, 255, 255, 0.25);
 }
 
-/* Header / Navbar */
+.btn-like {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #94a3b8;
+    transition: all 0.2s ease;
+    border-radius: 20px;
+    padding: 4px 12px;
+}
+
+.btn-like:hover, .btn-like.active {
+    color: #f43f5e;
+    background: rgba(244, 63, 94, 0.15);
+    border-color: rgba(244, 63, 94, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+ *  Header & Navigation
+ * -------------------------------------------------------------------------- */
 .custom-navbar {
-    background: rgba(11, 15, 25, 0.8) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(10, 12, 16, 0.8) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--card-border);
-    padding: 1rem 0;
-    z-index: 1000;
+    padding: 0.8rem 0;
 }
 
 .navbar-brand {
-    font-size: 1.5rem;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+    font-size: 1.4rem;
+    background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .nav-link {
-    color: var(--text-secondary);
+    color: var(--text-secondary) !important;
     font-weight: 500;
-    padding: 0.5rem 1rem !important;
     border-radius: 8px;
-    transition: all 0.3s ease;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.2s;
 }
 
 .nav-link:hover, .nav-link.active {
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary) !important;
+    background: rgba(255, 255, 255, 0.06);
 }
 
-/* Notifications badge */
-.badge-notify {
+/* --------------------------------------------------------------------------
+ *  Profile & Post Cards
+ * -------------------------------------------------------------------------- */
+.profile-cover {
+    height: 220px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 14px 14px 0 0;
+    position: relative;
+}
+
+.profile-avatar-container {
     position: absolute;
-    top: 2px;
-    right: 2px;
-    padding: 0.25em 0.4em;
-    font-size: 0.6rem;
+    bottom: -45px;
+    left: 40px;
+}
+
+.profile-avatar {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #161b26;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.profile-info-block {
+    margin-top: 55px;
+    padding: 0 40px 20px 40px;
+}
+
+.post-card {
+    margin-bottom: 1.5rem;
+}
+
+.post-avatar {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.1);
+}
+
+.post-image {
+    max-height: 450px;
+    object-fit: cover;
+    border-radius: 12px;
+    width: 100%;
+}
+
+.post-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 10px;
+    margin-top: 15px;
+}
+
+.comment-avatar {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
     border-radius: 50%;
 }
 
-/* Main Container padding */
+.comment-box {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 10px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* --------------------------------------------------------------------------
+ *  Animations & Utility
+ * -------------------------------------------------------------------------- */
 main {
     flex-grow: 1;
     padding-top: 2rem;
     padding-bottom: 4rem;
 }
 
-/* Micro-interactions & animations */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
 .animated-fade-in {
-    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: fadeIn 0.4s ease-out forwards;
 }
 
-/* Profile Header */
-.profile-cover {
-    height: 250px;
-    background-size: cover;
-    background-position: center;
-    border-radius: 16px;
-    position: relative;
-}
-
-.profile-avatar-container {
-    position: absolute;
-    bottom: -50px;
-    left: 50px;
-}
-
-.profile-avatar {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 4px solid var(--bg-color);
-    background-color: var(--bg-color);
-}
-
-.profile-info-block {
-    margin-top: 60px;
-    padding: 0 50px;
-}
-
-/* Responsive refinements */
-@media (max-width: 768px) {
-    .profile-cover {
-        height: 180px;
-    }
-    .profile-avatar-container {
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: -40px;
-    }
-    .profile-avatar {
-        width: 90px;
-        height: 90px;
-    }
-    .profile-info-block {
-        margin-top: 50px;
-        padding: 0 15px;
-        text-align: center;
-    }
+.badge-role {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+    border: 1px solid rgba(99, 102, 241, 0.3);
 }

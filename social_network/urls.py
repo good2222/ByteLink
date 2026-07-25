@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', HomeView.as_view(), name='home'),
     path('', include('apps.users.urls')),
+    path('', include('apps.posts.urls')),
 ]
 
 if settings.DEBUG:

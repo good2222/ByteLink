@@ -7,6 +7,8 @@ from django.shortcuts import get_object_or_404
 
 from .models import CustomUser
 from .forms import CustomUserCreationForm, UserProfileForm
+from apps.posts.models import Post
+from apps.posts.forms import PostForm, CommentForm
 
 class RegisterView(CreateView):
     model = CustomUser
@@ -30,8 +32,16 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # We will add posts feed here in Week 2 and Week 3
-        context['feed_posts'] = []
+        context['post_form'] = PostForm()
+        context['comment_form'] = CommentForm()
+        # Get all posts ordered by date for feed
+        posts = Post.objects.select_related('author').prefetch_related('likes', 'comments__author').all()
+        
+        # Attach a helper property to check if current user liked the post
+        for post in posts:
+            post.is_liked = post.is_liked_by(self.request.user)
+            
+        context['feed_posts'] = posts
         return context
 
 class ProfileView(LoginRequiredMixin, DetailView):
@@ -43,8 +53,14 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # We will add user's posts, friendship status here in Week 2/3
-        context['user_posts'] = []
+        context['post_form'] = PostForm()
+        context['comment_form'] = CommentForm()
+        
+        posts = self.object.posts.select_related('author').prefetch_related('likes', 'comments__author').all()
+        for post in posts:
+            post.is_liked = post.is_liked_by(self.request.user)
+            
+        context['user_posts'] = posts
         context['is_own_profile'] = self.object == self.request.user
         return context
 

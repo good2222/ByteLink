@@ -12,9 +12,6 @@ from apps.posts.models import Post
 from apps.posts.forms import PostForm, CommentForm
 
 
-# ──────────────────────────────────────────────
-# Регистрация
-# ──────────────────────────────────────────────
 class RegisterView(CreateView):
     model = CustomUser
     form_class = CustomUserCreationForm
@@ -32,9 +29,6 @@ class RegisterView(CreateView):
         return super().dispatch(request, *args, **kwargs)
 
 
-# ──────────────────────────────────────────────
-# Главная страница / Лента
-# ──────────────────────────────────────────────
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'home.html'
 
@@ -45,7 +39,6 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
         friends = self.request.user.get_friends()
 
-        # Лента: посты текущего пользователя + посты друзей
         posts = (
             Post.objects
             .select_related('author')
@@ -60,9 +53,6 @@ class HomeView(LoginRequiredMixin, TemplateView):
         return context
 
 
-# ──────────────────────────────────────────────
-# Профиль пользователя
-# ──────────────────────────────────────────────
 class ProfileView(LoginRequiredMixin, DetailView):
     model = CustomUser
     template_name = 'users/profile.html'
@@ -86,19 +76,16 @@ class ProfileView(LoginRequiredMixin, DetailView):
             post.is_liked = post.is_liked_by(self.request.user)
         context['user_posts'] = posts
         context['is_own_profile'] = self.object == self.request.user
-        context['friends'] = self.object.get_friends()[:6]  # первые 6 для виджета
+        context['friends'] = self.object.get_friends()[:6]  
         context['friends_count'] = self.object.get_friends().count()
 
-        # Статус дружбы между текущим пользователем и владельцем профиля
         if not context['is_own_profile']:
             me = self.request.user
             other = self.object
-            # Ищем заявку в любую сторону
             req = FriendRequest.objects.filter(
                 Q(from_user=me, to_user=other) | Q(from_user=other, to_user=me)
             ).first()
             context['friend_request'] = req
-            # Удобные флаги для шаблона
             if req:
                 context['are_friends'] = req.status == 'accepted'
                 context['request_pending_sent'] = req.status == 'pending' and req.from_user == me
@@ -111,9 +98,7 @@ class ProfileView(LoginRequiredMixin, DetailView):
         return context
 
 
-# ──────────────────────────────────────────────
-# Редактирование профиля
-# ──────────────────────────────────────────────
+
 class ProfileEditView(LoginRequiredMixin, UpdateView):
     model = CustomUser
     form_class = UserProfileForm
@@ -126,9 +111,6 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         return reverse_lazy('profile', kwargs={'username': self.request.user.username})
 
 
-# ──────────────────────────────────────────────
-# Поиск пользователей
-# ──────────────────────────────────────────────
 class UserSearchView(LoginRequiredMixin, ListView):
     template_name = 'users/search.html'
     context_object_name = 'results'
@@ -155,9 +137,6 @@ class UserSearchView(LoginRequiredMixin, ListView):
         return context
 
 
-# ──────────────────────────────────────────────
-# Список друзей
-# ──────────────────────────────────────────────
 class FriendsListView(LoginRequiredMixin, View):
     def get(self, request, username):
         profile_user = get_object_or_404(CustomUser, username=username)
@@ -168,9 +147,6 @@ class FriendsListView(LoginRequiredMixin, View):
         })
 
 
-# ──────────────────────────────────────────────
-# Входящие заявки в друзья
-# ──────────────────────────────────────────────
 class FriendRequestsView(LoginRequiredMixin, View):
     def get(self, request):
         incoming = FriendRequest.objects.filter(
@@ -181,9 +157,6 @@ class FriendRequestsView(LoginRequiredMixin, View):
         })
 
 
-# ──────────────────────────────────────────────
-# Отправить заявку в друзья
-# ──────────────────────────────────────────────
 class SendFriendRequestView(LoginRequiredMixin, View):
     def post(self, request, username):
         to_user = get_object_or_404(CustomUser, username=username)
@@ -191,7 +164,6 @@ class SendFriendRequestView(LoginRequiredMixin, View):
             messages.error(request, 'Нельзя добавить себя в друзья.')
             return redirect('profile', username=username)
 
-        # Не создаём дубли
         existing = FriendRequest.objects.filter(
             Q(from_user=request.user, to_user=to_user) |
             Q(from_user=to_user, to_user=request.user)
@@ -199,7 +171,6 @@ class SendFriendRequestView(LoginRequiredMixin, View):
 
         if existing:
             if existing.status == 'declined' and existing.from_user == request.user:
-                # Повторная отправка после отказа
                 existing.status = 'pending'
                 existing.save()
                 messages.success(request, f'Заявка отправлена пользователю {to_user.username}.')
@@ -211,10 +182,6 @@ class SendFriendRequestView(LoginRequiredMixin, View):
 
         return redirect('profile', username=username)
 
-
-# ──────────────────────────────────────────────
-# Принять заявку
-# ──────────────────────────────────────────────
 class AcceptFriendRequestView(LoginRequiredMixin, View):
     def post(self, request, pk):
         freq = get_object_or_404(FriendRequest, pk=pk, to_user=request.user, status='pending')
@@ -224,9 +191,6 @@ class AcceptFriendRequestView(LoginRequiredMixin, View):
         return redirect(request.META.get('HTTP_REFERER', 'friend_requests'))
 
 
-# ──────────────────────────────────────────────
-# Отклонить заявку
-# ──────────────────────────────────────────────
 class DeclineFriendRequestView(LoginRequiredMixin, View):
     def post(self, request, pk):
         freq = get_object_or_404(FriendRequest, pk=pk, to_user=request.user, status='pending')
@@ -236,9 +200,6 @@ class DeclineFriendRequestView(LoginRequiredMixin, View):
         return redirect(request.META.get('HTTP_REFERER', 'friend_requests'))
 
 
-# ──────────────────────────────────────────────
-# Удалить из друзей
-# ──────────────────────────────────────────────
 class RemoveFriendView(LoginRequiredMixin, View):
     def post(self, request, username):
         other = get_object_or_404(CustomUser, username=username)

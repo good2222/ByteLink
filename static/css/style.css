@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ByteLink — Premium Glossy Dark UI
+   ByteLink — Pure Obsidian Glossy Dark UI (Zero Blue / Full Monochrome Dark)
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
@@ -8,38 +8,38 @@
    1. CSS Variables / Design Tokens
    -------------------------------------------------------------------------- */
 :root {
-  --bg:          #07080d;
-  --bg-2:        #0d0f18;
-  --bg-3:        #12151f;
+  --bg:          #000000;
+  --bg-2:        #09090b;
+  --bg-3:        #121215;
 
-  --surface:     rgba(17, 21, 34, 0.72);
-  --surface-2:   rgba(24, 29, 46, 0.85);
-  --surface-hov: rgba(30, 36, 56, 0.90);
+  --surface:     rgba(20, 20, 24, 0.78);
+  --surface-2:   rgba(28, 28, 34, 0.88);
+  --surface-hov: rgba(38, 38, 44, 0.95);
 
-  --border:      rgba(255, 255, 255, 0.08);
-  --border-glow: rgba(130, 100, 255, 0.30);
+  --border:      rgba(255, 255, 255, 0.12);
+  --border-glow: rgba(255, 255, 255, 0.35);
 
-  --accent:      #7c5cfc;
-  --accent-2:    #a78bfa;
-  --accent-3:    #c084fc;
-  --accent-soft: rgba(124, 92, 252, 0.18);
+  --accent:      #ffffff;
+  --accent-2:    #e4e4e7;
+  --accent-3:    #a1a1aa;
+  --accent-soft: rgba(255, 255, 255, 0.10);
 
-  --red:         #f43f5e;
-  --red-soft:    rgba(244, 63, 94, 0.15);
-  --green:       #22d3ee;
+  --red:         #ff3b30;
+  --red-soft:    rgba(255, 59, 48, 0.15);
+  --green:       #34c759;
 
-  --text-1:      #f1f3fa;
-  --text-2:      #8e95b0;
-  --text-3:      #555d7a;
+  --text-1:      #f4f4f5;
+  --text-2:      #a1a1aa;
+  --text-3:      #71717a;
 
   --radius-sm:   8px;
   --radius:      14px;
   --radius-lg:   20px;
   --radius-xl:   28px;
 
-  --shadow-sm:   0 2px 10px rgba(0,0,0,.35);
-  --shadow:      0 8px 30px rgba(0,0,0,.45);
-  --shadow-glow: 0 0 30px rgba(124,92,252,.18);
+  --shadow-sm:   0 2px 10px rgba(0,0,0,.60);
+  --shadow:      0 8px 30px rgba(0,0,0,.80);
+  --shadow-glow: 0 0 35px rgba(255,255,255,.08);
 
   --font:        'Plus Jakarta Sans', system-ui, sans-serif;
   --font-alt:    'Space Grotesk', system-ui, sans-serif;
@@ -58,8 +58,8 @@ body {
   color: var(--text-1);
   background: var(--bg);
   background-image:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124,92,252,.14) 0%, transparent 65%),
-    radial-gradient(ellipse 50% 40% at 90% 80%, rgba(192,132,252,.07) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,255,255,.06) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 90% 80%, rgba(255,255,255,.03) 0%, transparent 60%);
   background-attachment: fixed;
   min-height: 100vh;
   display: flex;
@@ -79,7 +79,7 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
    -------------------------------------------------------------------------- */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-2); }
-::-webkit-scrollbar-thumb { background: rgba(124,92,252,.4); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.25); border-radius: 3px; }
 
 /* --------------------------------------------------------------------------
    4. Glassmorphism Card
@@ -90,7 +90,7 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
   -webkit-backdrop-filter: blur(18px) saturate(1.4);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.06);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.08);
   transition: border-color .25s, box-shadow .25s, transform .25s;
 }
 .glass:hover { border-color: var(--border-glow); box-shadow: var(--shadow), var(--shadow-glow); }
@@ -105,7 +105,7 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
    5. Navbar
    -------------------------------------------------------------------------- */
 .navbar {
-  background: rgba(7,8,13,.82) !important;
+  background: rgba(0,0,0,.88) !important;
   backdrop-filter: blur(20px) saturate(1.5);
   -webkit-backdrop-filter: blur(20px) saturate(1.5);
   border-bottom: 1px solid var(--border);
@@ -120,7 +120,7 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
   font-weight: 700;
   font-size: 1.25rem;
   letter-spacing: -.03em;
-  background: linear-gradient(135deg, #a78bfa 0%, #7c5cfc 40%, #c084fc 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #e4e4e7 60%, #a1a1aa 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -130,12 +130,13 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
 }
 .navbar-brand .brand-icon {
   -webkit-text-fill-color: initial;
-  background: var(--accent);
+  background: #ffffff;
+  color: #000000;
   width: 32px; height: 32px;
   border-radius: 9px;
   display: flex; align-items: center; justify-content: center;
   font-size: .95rem;
-  box-shadow: 0 0 12px rgba(124,92,252,.4);
+  box-shadow: 0 0 14px rgba(255,255,255,.35);
   flex-shrink: 0;
 }
 
@@ -152,7 +153,7 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
 }
 .nav-link:hover, .nav-link.active {
   color: var(--text-1) !important;
-  background: rgba(255,255,255,.07);
+  background: rgba(255,255,255,.09);
 }
 
 /* Navbar avatar */
@@ -160,7 +161,7 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
   width: 30px; height: 30px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(124,92,252,.4);
+  border: 2px solid rgba(255,255,255,.35);
 }
 
 /* Dropdown */
@@ -181,21 +182,21 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
   font-weight: 500;
   transition: all .18s;
 }
-.dropdown-item:hover { background: rgba(255,255,255,.07) !important; color: var(--text-1) !important; }
+.dropdown-item:hover { background: rgba(255,255,255,.09) !important; color: var(--text-1) !important; }
 .dropdown-divider { border-color: var(--border) !important; margin: .3rem !important; }
 
 /* --------------------------------------------------------------------------
    6. Buttons
    -------------------------------------------------------------------------- */
 .btn-primary-app {
-  background: linear-gradient(135deg, #7c5cfc 0%, #9d6fe8 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #e4e4e7 100%);
   border: none;
-  color: #fff !important;
-  font-weight: 600;
+  color: #000000 !important;
+  font-weight: 700;
   font-size: .875rem;
   padding: .55rem 1.2rem;
   border-radius: var(--radius-sm);
-  box-shadow: 0 4px 16px rgba(124,92,252,.35);
+  box-shadow: 0 4px 16px rgba(255,255,255,.20);
   transition: all .22s;
   cursor: pointer;
   display: inline-flex;
@@ -204,8 +205,9 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
 }
 .btn-primary-app:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(124,92,252,.5);
-  background: linear-gradient(135deg, #8f6dff 0%, #b07ffa 100%);
+  box-shadow: 0 8px 24px rgba(255,255,255,.35);
+  background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+  color: #000000 !important;
 }
 .btn-primary-app:active { transform: translateY(0); }
 
@@ -223,7 +225,7 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
   align-items: center;
   gap: .4rem;
 }
-.btn-ghost:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.18); }
+.btn-ghost:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.25); }
 
 .btn-like {
   background: transparent;
@@ -242,7 +244,7 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
 .btn-like:hover, .btn-like.liked {
   color: var(--red);
   background: var(--red-soft);
-  border-color: rgba(244,63,94,.25);
+  border-color: rgba(255,59,48,.30);
 }
 .btn-like i { font-size: .9rem; }
 
@@ -263,14 +265,14 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
 .btn-action:hover {
   color: var(--accent-2);
   background: var(--accent-soft);
-  border-color: rgba(124,92,252,.2);
+  border-color: rgba(255,255,255,.2);
 }
 
 /* --------------------------------------------------------------------------
    7. Forms
    -------------------------------------------------------------------------- */
 .form-control, .form-select, textarea {
-  background: rgba(10,12,20,.7) !important;
+  background: rgba(12,12,14,.8) !important;
   border: 1px solid var(--border) !important;
   color: var(--text-1) !important;
   border-radius: var(--radius-sm) !important;
@@ -282,8 +284,8 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
 .form-control::placeholder, textarea::placeholder { color: var(--text-3) !important; }
 .form-control:focus, .form-select:focus, textarea:focus {
   border-color: var(--accent) !important;
-  box-shadow: 0 0 0 3px rgba(124,92,252,.22) !important;
-  background: rgba(10,12,20,.95) !important;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.20) !important;
+  background: rgba(18,18,20,.98) !important;
   outline: none;
 }
 .form-label { color: var(--text-2); font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .45rem; }
@@ -305,7 +307,7 @@ main { flex: 1; padding: 2rem 0 4rem; }
   width: 42px; height: 42px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(124,92,252,.3);
+  border: 2px solid rgba(255,255,255,.25);
   flex-shrink: 0;
 }
 
@@ -364,7 +366,7 @@ main { flex: 1; padding: 2rem 0 4rem; }
   flex-shrink: 0;
 }
 .comment-bubble {
-  background: rgba(255,255,255,.04);
+  background: rgba(255,255,255,.05);
   border: 1px solid var(--border);
   border-radius: 0 var(--radius-sm) var(--radius-sm) var(--radius-sm);
   padding: .55rem .85rem;
@@ -390,7 +392,7 @@ main { flex: 1; padding: 2rem 0 4rem; }
   position: absolute;
   bottom: 0; left: 0; right: 0;
   height: 80px;
-  background: linear-gradient(to bottom, transparent, rgba(7,8,13,.9));
+  background: linear-gradient(to bottom, transparent, rgba(0,0,0,.95));
   border-radius: 0;
 }
 
@@ -399,7 +401,7 @@ main { flex: 1; padding: 2rem 0 4rem; }
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid var(--bg);
-  box-shadow: 0 0 0 2px var(--accent), 0 6px 24px rgba(0,0,0,.5);
+  box-shadow: 0 0 0 2px var(--accent), 0 6px 24px rgba(0,0,0,.8);
 }
 
 .profile-stat-val { font-family: var(--font-alt); font-weight: 700; font-size: 1.15rem; }
@@ -430,7 +432,7 @@ main { flex: 1; padding: 2rem 0 4rem; }
   display: inline-flex; align-items: center; gap: .3rem;
   background: var(--accent-soft);
   color: var(--accent-2);
-  border: 1px solid rgba(124,92,252,.25);
+  border: 1px solid rgba(255,255,255,.2);
   border-radius: 99px;
   padding: .2rem .65rem;
   font-size: .72rem;
@@ -501,13 +503,13 @@ input[type="file"] { display: none !important; }
 }
 .auth-card .brand-icon-lg {
   width: 56px; height: 56px;
-  background: var(--accent);
+  background: #ffffff;
   border-radius: 16px;
   display: flex; align-items: center; justify-content: center;
   font-size: 1.5rem;
-  color: #fff;
+  color: #000;
   margin: 0 auto 1.25rem;
-  box-shadow: 0 0 30px rgba(124,92,252,.4);
+  box-shadow: 0 0 30px rgba(255,255,255,.3);
 }
 
 /* --------------------------------------------------------------------------

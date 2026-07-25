@@ -331,10 +331,12 @@ main { flex: 1; padding: 2rem 0 4rem; }
 
 .post-image {
   width: 100%;
-  max-height: 460px;
+  height: 380px;
   object-fit: cover;
+  object-position: top;
   border-radius: var(--radius-sm);
   margin: .5rem 0 1rem;
+  display: block;
 }
 
 .post-actions-bar {

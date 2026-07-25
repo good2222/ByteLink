@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Друзья {{ profile_user.username }} — ByteLink{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-2">
+<div class="col-lg-8 col-12">
+
+    <div class="d-flex align-items-center gap-3 mb-4 fade-up">
+        <img src="{{ profile_user.get_avatar_url }}" alt="avatar"
+             style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);">
+        <h4 style="font-family:var(--font-alt); margin:0;">
+            Друзья <a href="{% url 'profile' username=profile_user.username %}"
+                      style="color:var(--accent-2);">{{ profile_user.username }}</a>
+            <span style="color:var(--text-3); font-size:.9rem;">({{ friends|length }})</span>
+        </h4>
+    </div>
+
+    {% if friends %}
+    <div class="row g-3">
+        {% for friend in friends %}
+        <div class="col-sm-6 col-md-4 fade-up">
+            <div class="glass p-3 text-center h-100">
+                <a href="{% url 'profile' username=friend.username %}">
+                    <img src="{{ friend.get_avatar_url }}" alt="avatar"
+                         style="width:72px; height:72px; border-radius:50%; object-fit:cover;
+                                border:2px solid var(--border); margin-bottom:.75rem;">
+                </a>
+                <div>
+                    <a href="{% url 'profile' username=friend.username %}"
+                       style="color:var(--text-1); font-weight:700; font-size:.92rem; font-family:var(--font-alt); display:block;">
+                        {{ friend.first_name|default:friend.username }} {{ friend.last_name }}
+                    </a>
+                    <span style="font-size:.75rem; color:var(--text-3);">@{{ friend.username }}</span>
+                    {% if friend.status_message %}
+                    <p style="font-size:.78rem; color:var(--text-2); margin:.4rem 0 0; font-style:italic;">
+                        "{{ friend.status_message }}"
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass">
+        <div class="empty-state">
+            <div class="icon"><i class="bi bi-people"></i></div>
+            <h5>Друзей нет</h5>
+            <p>{% if profile_user == user %}Найдите друзей через поиск!{% else %}У этого пользователя пока нет друзей.{% endif %}</p>
+            {% if profile_user == user %}
+            <a href="{% url 'user_search' %}" class="btn-primary-app mt-2" style="display:inline-flex;">
+                <i class="bi bi-search me-1"></i> Найти людей
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+</div>
+{% endblock %}

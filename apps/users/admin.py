@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import CustomUser, FriendRequest
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -16,5 +16,11 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('role', 'email')
         }),
     )
+
+@admin.register(FriendRequest)
+class FriendRequestAdmin(admin.ModelAdmin):
+    list_display = ['from_user', 'to_user', 'status', 'created_at']
+    list_filter = ['status']
+    search_fields = ['from_user__username', 'to_user__username']
 
 admin.site.register(CustomUser, CustomUserAdmin)

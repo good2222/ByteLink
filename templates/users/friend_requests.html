@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Входящие заявки — ByteLink{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-2">
+<div class="col-lg-7 col-12">
+
+    <h4 class="mb-4 fade-up" style="font-family:var(--font-alt);">
+        <i class="bi bi-people-fill me-2" style="color:var(--accent-2);"></i>Входящие заявки в друзья
+    </h4>
+
+    {% if incoming %}
+        {% for req in incoming %}
+        <div class="glass p-4 mb-3 d-flex align-items-center justify-content-between gap-3 fade-up">
+            <div class="d-flex align-items-center gap-3">
+                <a href="{% url 'profile' username=req.from_user.username %}">
+                    <img src="{{ req.from_user.get_avatar_url }}" alt="avatar"
+                         style="width:52px; height:52px; border-radius:50%; object-fit:cover;
+                                border:2px solid var(--border);">
+                </a>
+                <div>
+                    <a href="{% url 'profile' username=req.from_user.username %}"
+                       style="color:var(--text-1); font-weight:700; font-family:var(--font-alt); font-size:.95rem;">
+                        {{ req.from_user.first_name|default:req.from_user.username }} {{ req.from_user.last_name }}
+                    </a>
+                    <p style="font-size:.78rem; color:var(--text-3); margin:0;">
+                        @{{ req.from_user.username }} · {{ req.created_at|timesince }} назад
+                    </p>
+                    {% if req.from_user.status_message %}
+                    <p style="font-size:.8rem; color:var(--text-2); margin:.2rem 0 0; font-style:italic;">
+                        "{{ req.from_user.status_message }}"
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-flex gap-2 flex-shrink-0">
+                <form action="{% url 'accept_friend_request' pk=req.pk %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-primary-app btn btn-sm">
+                        <i class="bi bi-check-lg"></i> Принять
+                    </button>
+                </form>
+                <form action="{% url 'decline_friend_request' pk=req.pk %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-ghost btn btn-sm">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="glass fade-up">
+        <div class="empty-state">
+            <div class="icon"><i class="bi bi-inbox"></i></div>
+            <h5>Заявок нет</h5>
+            <p>Новые заявки в друзья появятся здесь.</p>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+</div>
+{% endblock %}

@@ -81,5 +81,56 @@ class CustomUser(AbstractUser):
         from django.templatetags.static import static
         return static('images/default-cover.png')
 
+    def get_friends(self):
+        """Возвращает QuerySet всех подтверждённых друзей."""
+        accepted = FriendRequest.objects.filter(
+            models.Q(from_user=self) | models.Q(to_user=self),
+            status='accepted'
+        )
+        friend_ids = []
+        for req in accepted:
+            friend_ids.append(req.to_user_id if req.from_user_id == self.pk else req.from_user_id)
+        return CustomUser.objects.filter(pk__in=friend_ids)
+
+    def get_pending_received_count(self):
+        """Количество входящих заявок в друзья (для бейджа в навбаре)."""
+        return FriendRequest.objects.filter(to_user=self, status='pending').count()
+
     def __str__(self):
         return self.username
+
+
+class FriendRequest(models.Model):
+    STATUS_CHOICES = (
+        ('pending',  'Ожидает'),
+        ('accepted', 'Принята'),
+        ('declined', 'Отклонена'),
+    )
+
+    from_user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='sent_requests',
+        verbose_name='Отправитель'
+    )
+    to_user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='received_requests',
+        verbose_name='Получатель'
+    )
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name='Статус'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('from_user', 'to_user')
+        verbose_name = 'Заявка в друзья'
+        verbose_name_plural = 'Заявки в друзья'
+
+    def __str__(self):
+        return f'{self.from_user} → {self.to_user} [{self.status}]'

@@ -38,13 +38,11 @@ class PostTests(TestCase):
     def test_like_toggle(self):
         post = Post.objects.create(author=self.user, content='Like me')
         like_url = reverse('post_like', kwargs={'pk': post.pk})
-        
-        # Like
+
         response = self.client.post(like_url, follow=True)
         self.assertEqual(post.likes_count, 1)
         self.assertTrue(post.is_liked_by(self.user))
 
-        # Unlike
         response = self.client.post(like_url, follow=True)
         self.assertEqual(post.likes_count, 0)
         self.assertFalse(post.is_liked_by(self.user))

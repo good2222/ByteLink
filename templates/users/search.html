@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Поиск: {{ query }} — ByteLink{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-2">
+<div class="col-lg-8 col-12">
+
+    <!-- Search form -->
+    <div class="glass p-4 mb-4 fade-up">
+        <form action="{% url 'user_search' %}" method="get" class="d-flex gap-2">
+            <input type="text" name="q" class="form-control" placeholder="Имя, фамилия или @username"
+                   value="{{ query }}" autofocus>
+            <button type="submit" class="btn-primary-app flex-shrink-0">
+                <i class="bi bi-search me-1"></i> Найти
+            </button>
+        </form>
+    </div>
+
+    <!-- Results -->
+    {% if query %}
+        {% if results %}
+        <h6 class="mb-3 fade-up" style="color:var(--text-3); font-size:.8rem; text-transform:uppercase; letter-spacing:.08em;">
+            Найдено: {{ results|length }}
+        </h6>
+        {% for u in results %}
+        <div class="glass p-4 mb-3 d-flex align-items-center justify-content-between gap-3 fade-up">
+            <div class="d-flex align-items-center gap-3">
+                <a href="{% url 'profile' username=u.username %}">
+                    <img src="{{ u.get_avatar_url }}" alt="avatar"
+                         style="width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid var(--border);">
+                </a>
+                <div>
+                    <a href="{% url 'profile' username=u.username %}"
+                       style="color:var(--text-1); font-weight:700; font-family:var(--font-alt); font-size:.95rem; display:block;">
+                        {{ u.first_name|default:u.username }} {{ u.last_name }}
+                    </a>
+                    <span style="font-size:.78rem; color:var(--text-3);">@{{ u.username }}</span>
+                    {% if u.status_message %}
+                    <p style="font-size:.8rem; color:var(--text-2); margin:.2rem 0 0; font-style:italic;">
+                        "{{ u.status_message }}"
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            <a href="{% url 'profile' username=u.username %}" class="btn-ghost btn btn-sm flex-shrink-0">
+                Профиль
+            </a>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="glass fade-up">
+            <div class="empty-state">
+                <div class="icon"><i class="bi bi-search"></i></div>
+                <h5>Ничего не найдено</h5>
+                <p>Попробуйте другой запрос: "{{ query }}"</p>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+    <div class="glass fade-up">
+        <div class="empty-state">
+            <div class="icon"><i class="bi bi-person-search"></i></div>
+            <h5>Найдите людей</h5>
+            <p>Введите имя или username в строку поиска выше.</p>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+</div>
+{% endblock %}

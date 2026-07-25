@@ -1,204 +1,214 @@
 {% extends 'base.html' %}
-
-{% block title %}{{ profile_user.first_name|default:profile_user.username }} {{ profile_user.last_name }} (@{{ profile_user.username }}) - ByteLink{% endblock %}
+{% block title %}{{ profile_user.first_name|default:profile_user.username }} (@{{ profile_user.username }}) — ByteLink{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center animated-fade-in">
-    <div class="col-lg-10 col-12">
-        <!-- Profile Header Widget -->
-        <div class="glass-card mb-4 overflow-hidden">
-            <!-- Cover image -->
-            <div class="profile-cover" style="background-image: url('{{ profile_user.get_cover_url }}');">
-                <div class="profile-avatar-container">
-                    <img src="{{ profile_user.get_avatar_url }}" alt="avatar" class="profile-avatar">
-                </div>
-            </div>
-            
-            <div class="profile-info-block pb-4">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-end pt-3">
-                    <div class="text-center text-md-start">
-                        <h2 class="mb-1 text-light fw-bold">{{ profile_user.first_name|default:profile_user.username }} {{ profile_user.last_name }}</h2>
-                        <p class="text-secondary mb-2">@{{ profile_user.username }}</p>
-                        {% if profile_user.status_message %}
-                            <p class="text-info small mb-0"><i class="bi bi-quote me-1"></i>{{ profile_user.status_message }}</p>
+<div class="row g-4 mt-1">
+    <div class="col-lg-9 mx-auto">
+
+        <!-- ── PROFILE HEADER CARD ─── -->
+        <div class="glass rounded-4 overflow-hidden mb-4 fade-up">
+            <!-- Cover -->
+            <div class="profile-cover"
+                 style="background-image: url('{{ profile_user.get_cover_url }}');"></div>
+
+            <!-- Info block -->
+            <div class="p-4">
+                <div class="d-flex flex-column flex-md-row align-items-start align-items-md-end
+                            justify-content-between gap-3" style="margin-top: -60px;">
+                    <img src="{{ profile_user.get_avatar_url }}" class="profile-avatar" alt="avatar"
+                         style="position: relative; z-index: 2;">
+                    <div class="ms-md-1 mt-3 mt-md-0 d-flex gap-2 flex-wrap">
+                        {% if is_own_profile %}
+                            <a href="{% url 'profile_edit' %}" class="btn-ghost btn btn-sm">
+                                <i class="bi bi-pencil-square me-1"></i> Редактировать
+                            </a>
+                        {% else %}
+                            <button class="btn-primary-app btn btn-sm">
+                                <i class="bi bi-person-plus-fill me-1"></i> Добавить в друзья
+                            </button>
+                            <button class="btn-ghost btn btn-sm">
+                                <i class="bi bi-chat-text-fill me-1"></i> Сообщение
+                            </button>
                         {% endif %}
                     </div>
-                    
-                    <div class="mt-3 mt-md-0">
-                        {% if is_own_profile %}
-                            <a href="{% url 'profile_edit' %}" class="btn btn-outline-glass btn-sm"><i class="bi bi-pencil-square me-1"></i>Редактировать</a>
-                        {% else %}
-                            <button class="btn btn-gradient btn-sm me-2"><i class="bi bi-person-plus me-1"></i> Добавить в друзья</button>
-                            <button class="btn btn-outline-glass btn-sm"><i class="bi bi-chat-text me-1"></i> Сообщение</button>
+                </div>
+
+                <div class="mt-3">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h2 class="mb-0" style="font-size: 1.35rem;">
+                            {{ profile_user.first_name|default:profile_user.username }} {{ profile_user.last_name }}
+                        </h2>
+                        <span class="pill {% if profile_user.role == 'admin' %}admin{% endif %}">
+                            {{ profile_user.get_role_display }}
+                        </span>
+                    </div>
+                    <p style="font-size: .85rem; color: var(--text-3); margin: .2rem 0 .6rem;">
+                        @{{ profile_user.username }}
+                    </p>
+                    {% if profile_user.status_message %}
+                        <p style="font-size: .9rem; color: var(--text-2); font-style: italic;">
+                            "{{ profile_user.status_message }}"
+                        </p>
+                    {% endif %}
+                    {% if profile_user.bio %}
+                        <p style="font-size: .875rem; color: var(--text-2); margin-top: .4rem;">
+                            {{ profile_user.bio }}
+                        </p>
+                    {% endif %}
+
+                    <!-- Meta -->
+                    <div class="d-flex flex-wrap gap-3 mt-3" style="font-size: .8rem; color: var(--text-3);">
+                        {% if profile_user.location %}
+                            <span><i class="bi bi-geo-alt me-1"></i>{{ profile_user.location }}</span>
                         {% endif %}
+                        {% if profile_user.website %}
+                            <span>
+                                <i class="bi bi-link-45deg me-1"></i>
+                                <a href="{{ profile_user.website }}" target="_blank"
+                                   style="color: var(--accent-2);">{{ profile_user.website }}</a>
+                            </span>
+                        {% endif %}
+                        {% if profile_user.birth_date %}
+                            <span><i class="bi bi-calendar3 me-1"></i>{{ profile_user.birth_date|date:"d.m.Y" }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="d-flex gap-4 mt-3">
+                        <div>
+                            <span class="profile-stat-val">{{ user_posts.count }}</span>
+                            <span class="profile-stat-lbl ms-1">Публикаций</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Detail columns -->
-        <div class="row">
-            <!-- Left Info column -->
-            <div class="col-md-4 mb-4">
-                <div class="glass-card p-4">
-                    <h5 class="mb-4 text-light fw-bold"><i class="bi bi-info-circle me-2 text-primary"></i>Информация</h5>
-                    
-                    {% if profile_user.bio %}
-                        <div class="mb-3">
-                            <h6 class="text-secondary small mb-1">О себе</h6>
-                            <p class="text-light small mb-0">{{ profile_user.bio }}</p>
-                        </div>
-                    {% endif %}
-                    
-                    <hr class="border-secondary my-3">
-                    
-                    <div class="d-flex flex-column gap-2 text-light small">
-                        {% if profile_user.location %}
-                            <div>
-                                <i class="bi bi-geo-alt me-2 text-secondary"></i>{{ profile_user.location }}
-                            </div>
-                        {% endif %}
-                        
-                        {% if profile_user.website %}
-                            <div>
-                                <i class="bi bi-link-45deg me-2 text-secondary"></i><a href="{{ profile_user.website }}" target="_blank" class="text-primary text-decoration-none">{{ profile_user.website }}</a>
-                            </div>
-                        {% endif %}
-                        
-                        {% if profile_user.birth_date %}
-                            <div>
-                                <i class="bi bi-calendar3 me-2 text-secondary"></i>{{ profile_user.birth_date|date:"d.m.Y" }}
-                            </div>
-                        {% endif %}
-                        
-                        <div>
-                            <i class="bi bi-shield-check me-2 text-secondary"></i>Роль: 
-                            <span class="badge badge-role ms-1">
-                                {{ profile_user.get_role_display }}
-                            </span>
-                        </div>
-                    </div>
+        <!-- ── POST COMPOSER (own profile) ─── -->
+        {% if is_own_profile %}
+        <div class="glass p-4 mb-4 fade-up fade-up-delay-1 composer-wrap">
+            <form action="{% url 'post_create' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="d-flex gap-3 align-items-start">
+                    <img src="{{ user.get_avatar_url }}" class="post-author-avatar flex-shrink-0" alt="avatar">
+                    <div class="flex-grow-1">{{ post_form.content }}</div>
                 </div>
-            </div>
-
-            <!-- Right Activity/Posts column -->
-            <div class="col-md-8">
-                <!-- If own profile, display publish form -->
-                {% if is_own_profile %}
-                    <div class="glass-card p-4 mb-4">
-                        <h5 class="text-light mb-3"><i class="bi bi-pencil-square me-2 text-primary"></i>Опубликовать запись</h5>
-                        <form action="{% url 'post_create' %}" method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                {{ post_form.content }}
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <label for="id_image_profile" class="btn btn-outline-glass btn-sm mb-0">
-                                        <i class="bi bi-image me-1 text-primary"></i> Прикрепить фото
-                                    </label>
-                                    <input type="file" name="image" id="id_image_profile" class="form-control" accept="image/*" style="display:none;" onchange="document.getElementById('file-chosen').textContent = this.files[0].name">
-                                    <span id="file-chosen" class="small text-secondary ms-2"></span>
-                                </div>
-                                <button type="submit" class="btn btn-gradient btn-sm px-4">Опубликовать</button>
-                            </div>
-                        </form>
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-3"
+                     style="border-top: 1px solid var(--border);">
+                    <div>
+                        <label for="id_image_profile" class="btn-ghost btn btn-sm" style="cursor: pointer;">
+                            <i class="bi bi-image" style="color: var(--accent-2);"></i> Фото
+                        </label>
+                        <input type="file" name="image" id="id_image_profile" accept="image/*">
                     </div>
+                    <button type="submit" class="btn-primary-app">
+                        <i class="bi bi-send-fill"></i> Опубликовать
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- ── USER POSTS ─── -->
+        {% if user_posts %}
+            {% for post in user_posts %}
+            <article class="glass post-card p-4 fade-up fade-up-delay-2">
+                <!-- Header -->
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="{{ post.author.get_avatar_url }}" class="post-author-avatar" alt="avatar">
+                        <div>
+                            <span class="post-author-name d-block">
+                                {{ post.author.first_name|default:post.author.username }} {{ post.author.last_name }}
+                            </span>
+                            <span class="post-meta">{{ post.created_at|timesince }} назад</span>
+                        </div>
+                    </div>
+                    {% if post.author == user or user.is_site_admin %}
+                    <form action="{% url 'post_delete' pk=post.pk %}" method="post" style="display:inline"
+                          onsubmit="return confirm('Удалить публикацию?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-action" title="Удалить">
+                            <i class="bi bi-trash3" style="color: var(--red);"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+
+                <p class="post-content">{{ post.content }}</p>
+
+                {% if post.image %}
+                <img src="{{ post.image.url }}" class="post-image" alt="Изображение поста">
                 {% endif %}
 
-                <!-- User Posts List -->
-                {% if user_posts %}
-                    {% for post in user_posts %}
-                        <div class="glass-card post-card p-4 mb-4">
-                            <!-- Post Header -->
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div class="d-flex align-items-center">
-                                    <img src="{{ post.author.get_avatar_url }}" alt="avatar" class="post-avatar me-3">
-                                    <div>
-                                        <h6 class="mb-0 text-light fw-bold">{{ post.author.first_name|default:post.author.username }} {{ post.author.last_name }}</h6>
-                                        <div class="text-secondary small">@{{ post.author.username }} &bull; {{ post.created_at|timesince }} назад</div>
-                                    </div>
+                <!-- Actions -->
+                <div class="post-actions-bar">
+                    <form action="{% url 'post_like' pk=post.pk %}" method="post" style="display:inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-like {% if post.is_liked %}liked{% endif %}">
+                            <i class="bi {% if post.is_liked %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                            {{ post.likes_count }}
+                        </button>
+                    </form>
+                    <button class="btn-action">
+                        <i class="bi bi-chat-left"></i> {{ post.comments_count }}
+                    </button>
+                </div>
+
+                <!-- Comments -->
+                {% if post.comments.exists %}
+                <div class="mt-3 pt-3" style="border-top: 1px solid var(--border);">
+                    {% for comment in post.comments.all %}
+                    <div class="comment-item">
+                        <a href="{% url 'profile' username=comment.author.username %}">
+                            <img src="{{ comment.author.get_avatar_url }}" class="comment-avatar" alt="avatar">
+                        </a>
+                        <div class="comment-bubble flex-grow-1">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <a href="{% url 'profile' username=comment.author.username %}"
+                                       class="comment-author">{{ comment.author.username }}</a>
+                                    <span class="comment-time ms-2">{{ comment.created_at|timesince }} ago</span>
                                 </div>
-                                {% if post.author == user or user.is_site_admin %}
-                                    <form action="{% url 'post_delete' pk=post.pk %}" method="post" style="display:inline;">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-link text-danger p-0" title="Удалить" onclick="return confirm('Удалить эту публикацию?');">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
+                                {% if comment.author == user or post.author == user or user.is_site_admin %}
+                                <form action="{% url 'comment_delete' pk=comment.pk %}" method="post" style="display:inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-action" style="padding:.15rem .4rem; font-size:.7rem;">
+                                        <i class="bi bi-x-lg" style="color: var(--red);"></i>
+                                    </button>
+                                </form>
                                 {% endif %}
                             </div>
-
-                            <!-- Post Body -->
-                            <p class="text-light mb-3" style="white-space: pre-line;">{{ post.content }}</p>
-                            {% if post.image %}
-                                <div class="mb-3">
-                                    <img src="{{ post.image.url }}" class="post-image" alt="Post Image">
-                                </div>
-                            {% endif %}
-
-                            <!-- Post Actions -->
-                            <div class="post-actions d-flex align-items-center justify-content-between">
-                                <form action="{% url 'post_like' pk=post.pk %}" method="post" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-like {% if post.is_liked %}active{% endif %}">
-                                        <i class="bi {% if post.is_liked %}bi-heart-fill text-danger{% else %}bi-heart{% endif %} me-1"></i>
-                                        <span>{{ post.likes_count }}</span>
-                                    </button>
-                                </form>
-                                <span class="text-secondary small">
-                                    <i class="bi bi-chat-left-text me-1"></i> {{ post.comments_count }} коммент.
-                                </span>
-                            </div>
-
-                            <!-- Comments Section -->
-                            <div class="mt-3 pt-3 border-top border-secondary">
-                                <form action="{% url 'comment_create' pk=post.pk %}" method="post" class="d-flex mb-3 gap-2">
-                                    {% csrf_token %}
-                                    {{ comment_form.text }}
-                                    <button type="submit" class="btn btn-gradient btn-sm px-3">
-                                        <i class="bi bi-send"></i>
-                                    </button>
-                                </form>
-
-                                {% for comment in post.comments.all %}
-                                    <div class="comment-box mb-2">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div class="d-flex align-items-center mb-1">
-                                                <a href="{% url 'profile' username=comment.author.username %}">
-                                                    <img src="{{ comment.author.get_avatar_url }}" alt="avatar" class="comment-avatar me-2">
-                                                </a>
-                                                <strong>
-                                                    <a href="{% url 'profile' username=comment.author.username %}" class="text-decoration-none text-light small">
-                                                        {{ comment.author.username }}
-                                                    </a>
-                                                </strong>
-                                                <span class="text-muted ms-2" style="font-size: 0.75rem;">{{ comment.created_at|timesince }} ago</span>
-                                            </div>
-                                            {% if comment.author == user or post.author == user or user.is_site_admin %}
-                                                <form action="{% url 'comment_delete' pk=comment.pk %}" method="post">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-link text-danger p-0" style="font-size: 0.75rem;" title="Удалить">
-                                                        <i class="bi bi-x-circle"></i>
-                                                    </button>
-                                                </form>
-                                            {% endif %}
-                                        </div>
-                                        <p class="mb-0 text-light small ms-4">{{ comment.text }}</p>
-                                    </div>
-                                {% endfor %}
-                            </div>
+                            <p class="comment-text mb-0">{{ comment.text }}</p>
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="glass-card p-5 text-center">
-                        <div class="display-6 text-secondary mb-3"><i class="bi bi-card-list"></i></div>
-                        <h5 class="text-light">Публикаций пока нет</h5>
-                        <p class="text-secondary small mb-0">Пользователь ještě ничего не опубликовал.</p>
                     </div>
+                    {% endfor %}
+                </div>
                 {% endif %}
+
+                <!-- Comment form -->
+                <form action="{% url 'comment_create' pk=post.pk %}" method="post"
+                      class="d-flex gap-2 mt-3 align-items-center">
+                    {% csrf_token %}
+                    <img src="{{ user.get_avatar_url }}" class="comment-avatar flex-shrink-0" alt="avatar">
+                    {{ comment_form.text }}
+                    <button type="submit" class="btn-primary-app flex-shrink-0" style="padding:.45rem .85rem;">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </form>
+            </article>
+            {% endfor %}
+
+        {% else %}
+        <div class="glass">
+            <div class="empty-state">
+                <div class="icon"><i class="bi bi-card-list"></i></div>
+                <h5>Нет публикаций</h5>
+                <p>{% if is_own_profile %}Создайте первую публикацию выше!{% else %}Этот пользователь ещё ничего не публиковал.{% endif %}</p>
             </div>
         </div>
+        {% endif %}
+
     </div>
 </div>
 {% endblock %}

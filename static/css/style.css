@@ -1,275 +1,516 @@
 /* ==========================================================================
-   ByteLink - Glossy Dark Theme (Глянцевый ночной стиль)
+   ByteLink — Premium Glossy Dark UI
    ========================================================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* --------------------------------------------------------------------------
+   1. CSS Variables / Design Tokens
+   -------------------------------------------------------------------------- */
 :root {
-    --bg-dark: #0a0c10;
-    --bg-gradient: radial-gradient(circle at 50% 0%, #171b26 0%, #0a0c10 75%);
-    --card-bg: rgba(22, 27, 38, 0.65);
-    --card-bg-hover: rgba(30, 37, 52, 0.75);
-    --card-border: rgba(255, 255, 255, 0.12);
-    --card-border-glow: rgba(99, 102, 241, 0.35);
-    --glass-shine: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%);
-    
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    
-    --accent-blue: #3b82f6;
-    --accent-purple: #8b5cf6;
-    --accent-pink: #ec4899;
-    --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-    --accent-gradient-hover: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
-    
-    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-headings: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --bg:          #07080d;
+  --bg-2:        #0d0f18;
+  --bg-3:        #12151f;
+
+  --surface:     rgba(17, 21, 34, 0.72);
+  --surface-2:   rgba(24, 29, 46, 0.85);
+  --surface-hov: rgba(30, 36, 56, 0.90);
+
+  --border:      rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(130, 100, 255, 0.30);
+
+  --accent:      #7c5cfc;
+  --accent-2:    #a78bfa;
+  --accent-3:    #c084fc;
+  --accent-soft: rgba(124, 92, 252, 0.18);
+
+  --red:         #f43f5e;
+  --red-soft:    rgba(244, 63, 94, 0.15);
+  --green:       #22d3ee;
+
+  --text-1:      #f1f3fa;
+  --text-2:      #8e95b0;
+  --text-3:      #555d7a;
+
+  --radius-sm:   8px;
+  --radius:      14px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+
+  --shadow-sm:   0 2px 10px rgba(0,0,0,.35);
+  --shadow:      0 8px 30px rgba(0,0,0,.45);
+  --shadow-glow: 0 0 30px rgba(124,92,252,.18);
+
+  --font:        'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-alt:    'Space Grotesk', system-ui, sans-serif;
 }
+
+/* --------------------------------------------------------------------------
+   2. Reset & Base
+   -------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
 
 body {
-    background: var(--bg-dark);
-    background-image: var(--bg-gradient);
-    background-attachment: fixed;
-    color: var(--text-primary);
-    font-family: var(--font-main);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    margin: 0;
+  font-family: var(--font);
+  font-size: 15px;
+  color: var(--text-1);
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124,92,252,.14) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 90% 80%, rgba(192,132,252,.07) 0%, transparent 60%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
 }
 
-img {
-    max-width: 100%;
-    height: auto;
-}
+img { max-width: 100%; height: auto; display: block; }
 
-h1, h2, h3, h4, h5, h6, .navbar-brand {
-    font-family: var(--font-headings);
-    font-weight: 700;
-    letter-spacing: -0.02em;
+a { color: var(--accent-2); text-decoration: none; transition: color .2s; }
+a:hover { color: var(--text-1); }
+
+h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
+
+/* --------------------------------------------------------------------------
+   3. Scrollbar
+   -------------------------------------------------------------------------- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-2); }
+::-webkit-scrollbar-thumb { background: rgba(124,92,252,.4); border-radius: 3px; }
+
+/* --------------------------------------------------------------------------
+   4. Glassmorphism Card
+   -------------------------------------------------------------------------- */
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.06);
+  transition: border-color .25s, box-shadow .25s, transform .25s;
+}
+.glass:hover { border-color: var(--border-glow); box-shadow: var(--shadow), var(--shadow-glow); }
+
+.glass-flat {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
 /* --------------------------------------------------------------------------
- *  Glossy Cards & Containers
- * -------------------------------------------------------------------------- */
-.glass-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--card-border);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
-    transition: all 0.25s ease-in-out;
-    position: relative;
-    overflow: hidden;
-}
-
-.glass-card:hover {
-    border-color: rgba(139, 92, 246, 0.3);
-    box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-/* --------------------------------------------------------------------------
- *  Form Inputs
- * -------------------------------------------------------------------------- */
-.form-control, .form-select, textarea {
-    background-color: rgba(15, 23, 42, 0.6) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    color: var(--text-primary) !important;
-    border-radius: 12px;
-    padding: 0.75rem 1rem;
-    transition: all 0.2s ease-in-out;
-    backdrop-filter: blur(8px);
-}
-
-.form-control::placeholder {
-    color: #64748b;
-}
-
-.form-control:focus, .form-select:focus, textarea:focus {
-    background-color: rgba(15, 23, 42, 0.85) !important;
-    border-color: var(--accent-blue) !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25), 0 0 15px rgba(99, 102, 241, 0.2) !important;
-    outline: none;
-}
-
-/* --------------------------------------------------------------------------
- *  Buttons
- * -------------------------------------------------------------------------- */
-.btn-gradient {
-    background: var(--accent-gradient);
-    border: none;
-    color: #ffffff !important;
-    font-weight: 600;
-    padding: 0.65rem 1.4rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
-    transition: all 0.2s ease-in-out;
-}
-
-.btn-gradient:hover {
-    background: var(--accent-gradient-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.45);
-}
-
-.btn-gradient:active {
-    transform: translateY(0);
-}
-
-.btn-outline-glass {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--card-border);
-    color: var(--text-primary) !important;
-    font-weight: 500;
-    padding: 0.65rem 1.4rem;
-    border-radius: 10px;
-    transition: all 0.2s ease;
-}
-
-.btn-outline-glass:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.25);
-}
-
-.btn-like {
-    background: transparent;
-    border: 1px solid transparent;
-    color: #94a3b8;
-    transition: all 0.2s ease;
-    border-radius: 20px;
-    padding: 4px 12px;
-}
-
-.btn-like:hover, .btn-like.active {
-    color: #f43f5e;
-    background: rgba(244, 63, 94, 0.15);
-    border-color: rgba(244, 63, 94, 0.3);
-}
-
-/* --------------------------------------------------------------------------
- *  Header & Navigation
- * -------------------------------------------------------------------------- */
-.custom-navbar {
-    background: rgba(10, 12, 16, 0.8) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--card-border);
-    padding: 0.8rem 0;
+   5. Navbar
+   -------------------------------------------------------------------------- */
+.navbar {
+  background: rgba(7,8,13,.82) !important;
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid var(--border);
+  padding: .75rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .navbar-brand {
-    font-size: 1.4rem;
-    background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  font-family: var(--font-alt);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -.03em;
+  background: linear-gradient(135deg, #a78bfa 0%, #7c5cfc 40%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  gap: .5rem;
+  display: flex;
+  align-items: center;
+}
+.navbar-brand .brand-icon {
+  -webkit-text-fill-color: initial;
+  background: var(--accent);
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .95rem;
+  box-shadow: 0 0 12px rgba(124,92,252,.4);
+  flex-shrink: 0;
 }
 
 .nav-link {
-    color: var(--text-secondary) !important;
-    font-weight: 500;
-    border-radius: 8px;
-    padding: 0.5rem 1rem !important;
-    transition: all 0.2s;
+  color: var(--text-2) !important;
+  font-weight: 500;
+  font-size: .875rem;
+  padding: .45rem .85rem !important;
+  border-radius: var(--radius-sm);
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.nav-link:hover, .nav-link.active {
+  color: var(--text-1) !important;
+  background: rgba(255,255,255,.07);
 }
 
-.nav-link:hover, .nav-link.active {
-    color: var(--text-primary) !important;
-    background: rgba(255, 255, 255, 0.06);
+/* Navbar avatar */
+.nav-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(124,92,252,.4);
+}
+
+/* Dropdown */
+.dropdown-menu {
+  background: var(--bg-3) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow) !important;
+  backdrop-filter: blur(20px);
+  padding: .4rem;
+  min-width: 200px;
+}
+.dropdown-item {
+  color: var(--text-2) !important;
+  border-radius: var(--radius-sm);
+  padding: .55rem .85rem;
+  font-size: .875rem;
+  font-weight: 500;
+  transition: all .18s;
+}
+.dropdown-item:hover { background: rgba(255,255,255,.07) !important; color: var(--text-1) !important; }
+.dropdown-divider { border-color: var(--border) !important; margin: .3rem !important; }
+
+/* --------------------------------------------------------------------------
+   6. Buttons
+   -------------------------------------------------------------------------- */
+.btn-primary-app {
+  background: linear-gradient(135deg, #7c5cfc 0%, #9d6fe8 100%);
+  border: none;
+  color: #fff !important;
+  font-weight: 600;
+  font-size: .875rem;
+  padding: .55rem 1.2rem;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 16px rgba(124,92,252,.35);
+  transition: all .22s;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+}
+.btn-primary-app:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124,92,252,.5);
+  background: linear-gradient(135deg, #8f6dff 0%, #b07ffa 100%);
+}
+.btn-primary-app:active { transform: translateY(0); }
+
+.btn-ghost {
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--border);
+  color: var(--text-1) !important;
+  font-weight: 500;
+  font-size: .875rem;
+  padding: .55rem 1.2rem;
+  border-radius: var(--radius-sm);
+  transition: all .2s;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+}
+.btn-ghost:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.18); }
+
+.btn-like {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-2);
+  font-size: .82rem;
+  font-weight: 600;
+  padding: .35rem .85rem;
+  border-radius: 99px;
+  transition: all .2s;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+.btn-like:hover, .btn-like.liked {
+  color: var(--red);
+  background: var(--red-soft);
+  border-color: rgba(244,63,94,.25);
+}
+.btn-like i { font-size: .9rem; }
+
+.btn-action {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-2);
+  font-size: .82rem;
+  font-weight: 600;
+  padding: .35rem .85rem;
+  border-radius: 99px;
+  transition: all .2s;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+.btn-action:hover {
+  color: var(--accent-2);
+  background: var(--accent-soft);
+  border-color: rgba(124,92,252,.2);
 }
 
 /* --------------------------------------------------------------------------
- *  Profile & Post Cards
- * -------------------------------------------------------------------------- */
-.profile-cover {
-    height: 220px;
-    background-size: cover;
-    background-position: center;
-    border-radius: 14px 14px 0 0;
-    position: relative;
+   7. Forms
+   -------------------------------------------------------------------------- */
+.form-control, .form-select, textarea {
+  background: rgba(10,12,20,.7) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-1) !important;
+  border-radius: var(--radius-sm) !important;
+  font-family: var(--font);
+  font-size: .9rem;
+  padding: .65rem 1rem;
+  transition: border-color .2s, box-shadow .2s;
 }
-
-.profile-avatar-container {
-    position: absolute;
-    bottom: -45px;
-    left: 40px;
+.form-control::placeholder, textarea::placeholder { color: var(--text-3) !important; }
+.form-control:focus, .form-select:focus, textarea:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(124,92,252,.22) !important;
+  background: rgba(10,12,20,.95) !important;
+  outline: none;
 }
+.form-label { color: var(--text-2); font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .45rem; }
 
-.profile-avatar {
-    width: 110px;
-    height: 110px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 4px solid #161b26;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-}
+/* --------------------------------------------------------------------------
+   8. Main Layout
+   -------------------------------------------------------------------------- */
+main { flex: 1; padding: 2rem 0 4rem; }
 
-.profile-info-block {
-    margin-top: 55px;
-    padding: 0 40px 20px 40px;
-}
-
+/* --------------------------------------------------------------------------
+   9. Post Card
+   -------------------------------------------------------------------------- */
 .post-card {
-    margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
 }
 
-.post-avatar {
-    width: 44px;
-    height: 44px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.1);
+.post-author-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(124,92,252,.3);
+  flex-shrink: 0;
+}
+
+.post-author-name {
+  font-weight: 700;
+  font-size: .92rem;
+  color: var(--text-1);
+  font-family: var(--font-alt);
+}
+
+.post-meta {
+  font-size: .75rem;
+  color: var(--text-3);
+}
+
+.post-content {
+  color: var(--text-1);
+  line-height: 1.7;
+  white-space: pre-line;
+  font-size: .925rem;
+  margin: .75rem 0;
 }
 
 .post-image {
-    max-height: 450px;
-    object-fit: cover;
-    border-radius: 12px;
-    width: 100%;
+  width: 100%;
+  max-height: 460px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin: .5rem 0 1rem;
 }
 
-.post-actions {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    border-top: 1px solid rgba(255,255,255,0.06);
-    padding-top: 10px;
-    margin-top: 15px;
-}
-
-.comment-avatar {
-    width: 32px;
-    height: 32px;
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-.comment-box {
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 10px;
-    padding: 10px 14px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+.post-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  border-top: 1px solid var(--border);
+  padding-top: .75rem;
+  margin-top: .5rem;
 }
 
 /* --------------------------------------------------------------------------
- *  Animations & Utility
- * -------------------------------------------------------------------------- */
-main {
-    flex-grow: 1;
-    padding-top: 2rem;
-    padding-bottom: 4rem;
+   10. Comment
+   -------------------------------------------------------------------------- */
+.comment-item {
+  display: flex;
+  gap: .75rem;
+  margin-bottom: .75rem;
+}
+.comment-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.comment-bubble {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) var(--radius-sm);
+  padding: .55rem .85rem;
+  flex: 1;
+  min-width: 0;
+}
+.comment-author { font-size: .78rem; font-weight: 700; color: var(--text-1); }
+.comment-text { font-size: .84rem; color: var(--text-2); margin-top: .15rem; }
+.comment-time { font-size: .7rem; color: var(--text-3); }
+
+/* --------------------------------------------------------------------------
+   11. Profile Page
+   -------------------------------------------------------------------------- */
+.profile-cover {
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+  border-radius: var(--radius) var(--radius) 0 0;
+  position: relative;
+}
+.profile-cover::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, rgba(7,8,13,.9));
+  border-radius: 0;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+.profile-avatar {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--accent), 0 6px 24px rgba(0,0,0,.5);
 }
 
-.animated-fade-in {
-    animation: fadeIn 0.4s ease-out forwards;
+.profile-stat-val { font-family: var(--font-alt); font-weight: 700; font-size: 1.15rem; }
+.profile-stat-lbl { font-size: .7rem; color: var(--text-3); text-transform: uppercase; letter-spacing: .05em; }
+
+/* --------------------------------------------------------------------------
+   12. Left sidebar mini-profile
+   -------------------------------------------------------------------------- */
+.mini-profile-cover {
+  height: 70px;
+  background-size: cover;
+  background-position: center;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+.mini-profile-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--bg-2);
+  box-shadow: 0 0 0 2px var(--accent);
+  margin-top: -26px;
 }
 
-.badge-role {
-    background: rgba(99, 102, 241, 0.2);
-    color: #a5b4fc;
-    border: 1px solid rgba(99, 102, 241, 0.3);
+/* --------------------------------------------------------------------------
+   13. Badges & Pills
+   -------------------------------------------------------------------------- */
+.pill {
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: var(--accent-soft);
+  color: var(--accent-2);
+  border: 1px solid rgba(124,92,252,.25);
+  border-radius: 99px;
+  padding: .2rem .65rem;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.pill.admin { background: rgba(250,204,21,.1); color: #fbbf24; border-color: rgba(251,191,36,.25); }
+
+/* --------------------------------------------------------------------------
+   14. Textarea for post composer
+   -------------------------------------------------------------------------- */
+.composer-wrap textarea {
+  resize: none;
+  border-radius: var(--radius-sm) !important;
+}
+
+/* --------------------------------------------------------------------------
+   15. File input hidden + label button
+   -------------------------------------------------------------------------- */
+input[type="file"] { display: none !important; }
+
+/* --------------------------------------------------------------------------
+   16. Dividers
+   -------------------------------------------------------------------------- */
+.divider { border-color: var(--border) !important; }
+
+/* --------------------------------------------------------------------------
+   17. Animations
+   -------------------------------------------------------------------------- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp .4s cubic-bezier(.2,.8,.3,1) both; }
+.fade-up-delay-1 { animation-delay: .06s; }
+.fade-up-delay-2 { animation-delay: .12s; }
+.fade-up-delay-3 { animation-delay: .18s; }
+
+/* --------------------------------------------------------------------------
+   18. Empty state
+   -------------------------------------------------------------------------- */
+.empty-state {
+  text-align: center;
+  padding: 3.5rem 1rem;
+}
+.empty-state .icon { font-size: 2.5rem; color: var(--text-3); margin-bottom: 1rem; }
+.empty-state h5 { font-family: var(--font-alt); color: var(--text-2); margin-bottom: .4rem; }
+.empty-state p { color: var(--text-3); font-size: .875rem; }
+
+/* --------------------------------------------------------------------------
+   19. Alert / Toast
+   -------------------------------------------------------------------------- */
+.alert {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  color: var(--text-1) !important;
+  font-size: .875rem;
+}
+
+/* --------------------------------------------------------------------------
+   20. Auth pages
+   -------------------------------------------------------------------------- */
+.auth-card {
+  max-width: 440px;
+  width: 100%;
+}
+.auth-card .brand-icon-lg {
+  width: 56px; height: 56px;
+  background: var(--accent);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+  color: #fff;
+  margin: 0 auto 1.25rem;
+  box-shadow: 0 0 30px rgba(124,92,252,.4);
+}
+
+/* --------------------------------------------------------------------------
+   21. Responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .profile-cover { height: 160px; }
+  main { padding: 1rem 0 3rem; }
 }

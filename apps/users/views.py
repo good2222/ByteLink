@@ -138,8 +138,11 @@ class UserSearchView(LoginRequiredMixin, ListView):
 
 
 class FriendsListView(LoginRequiredMixin, View):
-    def get(self, request, username):
-        profile_user = get_object_or_404(CustomUser, username=username)
+    def get(self, request, username=None):
+        if username:
+            profile_user = get_object_or_404(CustomUser, username=username)
+        else:
+            profile_user = request.user
         friends = profile_user.get_friends()
         return render(request, 'users/friends.html', {
             'profile_user': profile_user,

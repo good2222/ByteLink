@@ -58,7 +58,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link position-relative" href="{% url 'friend_requests' %}">
+                        <a class="nav-link position-relative {% if 'friend' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'my_friends' %}">
                             <i class="bi bi-people-fill"></i> Друзья
                             {% with cnt=user.get_pending_received_count %}
                             {% if cnt %}

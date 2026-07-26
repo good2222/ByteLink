@@ -1,14 +1,34 @@
 {% extends 'base.html' %}
-{% block title %}Входящие заявки — ByteLink{% endblock %}
+{% block title %}Заявки в друзья — ByteLink{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-2">
-<div class="col-lg-7 col-12">
+<div class="col-lg-8 col-12">
 
-    <h4 class="mb-4 fade-up" style="font-family:var(--font-alt);">
-        <i class="bi bi-people-fill me-2" style="color:var(--accent-2);"></i>Входящие заявки в друзья
+    <!-- Header -->
+    <h4 class="mb-3 fade-up" style="font-family:var(--font-alt);">
+        <i class="bi bi-people-fill me-2" style="color:var(--accent-2);"></i>Друзья
     </h4>
 
+    <!-- Navigation Tabs -->
+    <div class="d-flex gap-2 mb-4 fade-up">
+        <a href="{% url 'my_friends' %}" class="btn-ghost btn btn-sm">
+            <i class="bi bi-people-fill me-1"></i> Все друзья
+        </a>
+        <a href="{% url 'friend_requests' %}" class="btn-primary-app btn btn-sm position-relative">
+            <i class="bi bi-inbox-fill me-1"></i> Заявки в друзья
+            {% with cnt=user.get_pending_received_count %}
+            {% if cnt %}
+            <span class="badge rounded-pill ms-1" style="background:#000; color:#fff; font-size:.65rem;">{{ cnt }}</span>
+            {% endif %}
+            {% endwith %}
+        </a>
+        <a href="{% url 'user_search' %}" class="btn-ghost btn btn-sm">
+            <i class="bi bi-search me-1"></i> Найти людей
+        </a>
+    </div>
+
+    <!-- Requests list -->
     {% if incoming %}
         {% for req in incoming %}
         <div class="glass p-4 mb-3 d-flex align-items-center justify-content-between gap-3 fade-up">
@@ -53,8 +73,8 @@
     <div class="glass fade-up">
         <div class="empty-state">
             <div class="icon"><i class="bi bi-inbox"></i></div>
-            <h5>Заявок нет</h5>
-            <p>Новые заявки в друзья появятся здесь.</p>
+            <h5>Входящих заявок нет</h5>
+            <p>Когда кто-то отправит вам заявку в друзья, она появится здесь.</p>
         </div>
     </div>
     {% endif %}

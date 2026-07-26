@@ -1,9 +1,32 @@
 {% extends 'base.html' %}
-{% block title %}Поиск: {{ query }} — ByteLink{% endblock %}
+{% block title %}Поиск людей — ByteLink{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-2">
 <div class="col-lg-8 col-12">
+
+    <!-- Header -->
+    <h4 class="mb-3 fade-up" style="font-family:var(--font-alt);">
+        <i class="bi bi-people-fill me-2" style="color:var(--accent-2);"></i>Друзья
+    </h4>
+
+    <!-- Navigation Tabs -->
+    <div class="d-flex gap-2 mb-4 fade-up">
+        <a href="{% url 'my_friends' %}" class="btn-ghost btn btn-sm">
+            <i class="bi bi-people-fill me-1"></i> Все друзья
+        </a>
+        <a href="{% url 'friend_requests' %}" class="btn-ghost btn btn-sm position-relative">
+            <i class="bi bi-inbox-fill me-1"></i> Заявки в друзья
+            {% with cnt=user.get_pending_received_count %}
+            {% if cnt %}
+            <span class="badge rounded-pill ms-1" style="background:var(--red); font-size:.65rem;">{{ cnt }}</span>
+            {% endif %}
+            {% endwith %}
+        </a>
+        <a href="{% url 'user_search' %}" class="btn-primary-app btn btn-sm">
+            <i class="bi bi-search me-1"></i> Найти людей
+        </a>
+    </div>
 
     <!-- Search form -->
     <div class="glass p-4 mb-4 fade-up">

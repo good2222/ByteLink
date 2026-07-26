@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% block title %}Чат с {{ other_user.username }} — ByteLink{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-2">
+<div class="col-lg-10 col-12">
+
+    <div class="glass overflow-hidden fade-up" style="min-height:580px;">
+        <div class="row g-0 h-100" style="min-height:580px;">
+
+            <!-- Left Sidebar (Dialogues List) -->
+            <div class="col-md-4 col-12 d-none d-md-block" style="border-right:1px solid var(--border);">
+                <div class="p-3" style="border-bottom:1px solid var(--border);">
+                    <h5 style="font-family:var(--font-alt); margin:0;">
+                        <i class="bi bi-chat-text-fill me-2" style="color:var(--accent-2);"></i>Сообщения
+                    </h5>
+                </div>
+                <div class="p-2" style="max-height:500px; overflow-y:auto;">
+                    {% for room in chat_rooms %}
+                    {% with partner=room.get_other_user|default:user %}
+                    <a href="{% url 'chat_detail' pk=room.pk %}"
+                       class="d-flex align-items-center gap-3 p-3 text-decoration-none rounded-3 mb-1
+                              {% if room.pk == chat_room.pk %}active-chat{% endif %}"
+                       style="border:1px solid var(--border); transition:all .2s;
+                              {% if room.pk == chat_room.pk %}background:rgba(255,255,255,.10); border-color:var(--border-glow);{% else %}background:rgba(255,255,255,.02);{% endif %}">
+                        {% if partner %}
+                        <img src="{{ partner.get_avatar_url }}" alt="avatar"
+                             style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--border); flex-shrink:0;">
+                        {% endif %}
+                        <div style="min-width:0; flex-grow:1;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span style="color:var(--text-1); font-weight:700; font-family:var(--font-alt); font-size:.88rem;
+                                             overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    {% if partner %}{{ partner.first_name|default:partner.username }}{% else %}Чат #{{ room.id }}{% endif %}
+                                </span>
+                                {% with last=room.last_message %}
+                                {% if last %}
+                                <span style="font-size:.68rem; color:var(--text-3);">{{ last.created_at|date:"H:i" }}</span>
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                            {% with last=room.last_message %}
+                            {% if last %}
+                            <p style="font-size:.78rem; color:var(--text-2); margin:.15rem 0 0;
+                                       overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                {{ last.content }}
+                            </p>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                    </a>
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Right Area (Active Chat) -->
+            <div class="col-md-8 col-12 d-flex flex-column" style="height:580px;">
+
+                <!-- Active Chat Header -->
+                <div class="p-3 d-flex align-items-center justify-content-between"
+                     style="border-bottom:1px solid var(--border); background:rgba(0,0,0,.4);">
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="{% url 'chat_list' %}" class="d-md-none text-white me-2"><i class="bi bi-arrow-left fs-4"></i></a>
+                        {% if other_user %}
+                        <a href="{% url 'profile' username=other_user.username %}" class="d-flex align-items-center gap-3 text-decoration-none">
+                            <img src="{{ other_user.get_avatar_url }}" alt="avatar"
+                                 style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid var(--border);">
+                            <div>
+                                <span style="color:var(--text-1); font-weight:700; font-family:var(--font-alt); font-size:.95rem; display:block;">
+                                    {{ other_user.first_name|default:other_user.username }} {{ other_user.last_name }}
+                                </span>
+                                <span style="font-size:.75rem; color:var(--text-3);">@{{ other_user.username }}</span>
+                            </div>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Messages Window -->
+                <div id="messages-container" class="p-3 flex-grow-1" style="overflow-y:auto; display:flex; flex-direction:column; gap:.75rem;">
+                    {% for msg in chat_room.messages.all %}
+                        {% if msg.sender == user %}
+                        <!-- My Message -->
+                        <div class="d-flex flex-column align-items-end ms-auto" style="max-width:75%;">
+                            <div style="background:linear-gradient(135deg, #ffffff 0%, #e4e4e7 100%); color:#000;
+                                        padding:.65rem .95rem; border-radius:16px 16px 2px 16px; font-size:.88rem; font-weight:500;">
+                                {{ msg.content }}
+                            </div>
+                            <span style="font-size:.68rem; color:var(--text-3); margin-top:.2rem;">{{ msg.created_at|date:"H:i" }}</span>
+                        </div>
+                        {% else %}
+                        <!-- Partner Message -->
+                        <div class="d-flex gap-2 align-items-end me-auto" style="max-width:75%;">
+                            <img src="{{ msg.sender.get_avatar_url }}" alt="avatar"
+                                 style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid var(--border); flex-shrink:0;">
+                            <div>
+                                <div style="background:rgba(255,255,255,.08); border:1px solid var(--border); color:var(--text-1);
+                                            padding:.65rem .95rem; border-radius:16px 16px 16px 2px; font-size:.88rem;">
+                                    {{ msg.content }}
+                                </div>
+                                <span style="font-size:.68rem; color:var(--text-3); margin-top:.2rem; display:block;">{{ msg.created_at|date:"H:i" }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Input Box -->
+                <div class="p-3" style="border-top:1px solid var(--border); background:rgba(0,0,0,.4);">
+                    <div class="d-flex gap-2 align-items-center">
+                        <input type="text" id="chat-message-input" class="form-control"
+                               placeholder="Напишите сообщение..." autocomplete="off">
+                        <button type="button" id="chat-message-submit" class="btn-primary-app flex-shrink-0" style="padding:.65rem 1.1rem;">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const roomId = "{{ chat_room.id }}";
+    const currentUsername = "{{ user.username }}";
+
+    const container = document.getElementById('messages-container');
+    const input = document.getElementById('chat-message-input');
+    const submitBtn = document.getElementById('chat-message-submit');
+
+    // Авто-скролл вниз при открытии
+    function scrollToBottom() {
+        container.scrollTop = container.scrollHeight;
+    }
+    scrollToBottom();
+
+    // WebSocket подключение
+    const wsScheme = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const socketUrl = wsScheme + window.location.host + '/ws/chat/' + roomId + '/';
+    const chatSocket = new WebSocket(socketUrl);
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const isMe = data.sender_username === currentUsername;
+
+        let msgHtml = '';
+        if (isMe) {
+            msgHtml = `
+                <div class="d-flex flex-column align-items-end ms-auto" style="max-width:75%;">
+                    <div style="background:linear-gradient(135deg, #ffffff 0%, #e4e4e7 100%); color:#000;
+                                padding:.65rem .95rem; border-radius:16px 16px 2px 16px; font-size:.88rem; font-weight:500;">
+                        ${escapeHtml(data.message)}
+                    </div>
+                    <span style="font-size:.68rem; color:var(--text-3); margin-top:.2rem;">${data.created_at}</span>
+                </div>`;
+        } else {
+            msgHtml = `
+                <div class="d-flex gap-2 align-items-end me-auto" style="max-width:75%;">
+                    <img src="${data.sender_avatar}" alt="avatar"
+                         style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid var(--border); flex-shrink:0;">
+                    <div>
+                        <div style="background:rgba(255,255,255,.08); border:1px solid var(--border); color:var(--text-1);
+                                    padding:.65rem .95rem; border-radius:16px 16px 16px 2px; font-size:.88rem;">
+                            ${escapeHtml(data.message)}
+                        </div>
+                        <span style="font-size:.68rem; color:var(--text-3); margin-top:.2rem; display:block;">${data.created_at}</span>
+                    </div>
+                </div>`;
+        }
+
+        container.insertAdjacentHTML('beforeend', msgHtml);
+        scrollToBottom();
+    };
+
+    function sendMessage() {
+        const message = input.value.trim();
+        if (!message) return;
+
+        chatSocket.send(JSON.stringify({
+            'message': message
+        }));
+        input.value = '';
+    }
+
+    submitBtn.addEventListener('click', sendMessage);
+    input.addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.innerText = text;
+        return div.innerHTML;
+    }
+})();
+</script>
+{% endblock %}

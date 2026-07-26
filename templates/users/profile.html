@@ -29,7 +29,7 @@
                                     <i class="bi bi-person-dash-fill me-1"></i> Удалить из друзей
                                 </button>
                             </form>
-                            <a href="#" class="btn-primary-app btn btn-sm">
+                            <a href="{% url 'start_chat' username=profile_user.username %}" class="btn-primary-app btn btn-sm">
                                 <i class="bi bi-chat-text-fill me-1"></i> Написать
                             </a>
                         {% elif request_pending_sent %}

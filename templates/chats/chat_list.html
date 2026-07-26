@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Сообщения — ByteLink{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-2">
+<div class="col-lg-10 col-12">
+
+    <div class="glass overflow-hidden fade-up" style="min-height:550px;">
+        <div class="row g-0 h-100" style="min-height:550px;">
+
+            <!-- Left Sidebar (Dialogues List) -->
+            <div class="col-md-4 col-12" style="border-right:1px solid var(--border);">
+                <div class="p-3" style="border-bottom:1px solid var(--border);">
+                    <h5 style="font-family:var(--font-alt); margin:0;">
+                        <i class="bi bi-chat-text-fill me-2" style="color:var(--accent-2);"></i>Сообщения
+                    </h5>
+                </div>
+                <div class="p-2" style="max-height:480px; overflow-y:auto;">
+                    {% if chat_rooms %}
+                        {% for room in chat_rooms %}
+                            {% with other=room|default:user %}
+                            {% with other_user=room.get_other_user|default:user %}
+                            {% endwith %}
+                            {% endwith %}
+                        {% endfor %}
+
+                        {% for room in chat_rooms %}
+                        {% with other_user=room.get_other_user|default:user %}
+                        <a href="{% url 'chat_detail' pk=room.pk %}"
+                           class="d-flex align-items-center gap-3 p-3 text-decoration-none rounded-3 mb-1"
+                           style="background:rgba(255,255,255,.03); border:1px solid var(--border); transition:all .2s;">
+                            {% if other_user %}
+                            <img src="{{ other_user.get_avatar_url }}" alt="avatar"
+                                 style="width:46px; height:46px; border-radius:50%; object-fit:cover; border:2px solid var(--border); flex-shrink:0;">
+                            {% endif %}
+                            <div style="min-width:0; flex-grow:1;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span style="color:var(--text-1); font-weight:700; font-family:var(--font-alt); font-size:.9rem;
+                                                 overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                        {% if other_user %}{{ other_user.first_name|default:other_user.username }}{% else %}Чат #{{ room.id }}{% endif %}
+                                    </span>
+                                    {% with last=room.last_message %}
+                                    {% if last %}
+                                    <span style="font-size:.7rem; color:var(--text-3);">{{ last.created_at|date:"H:i" }}</span>
+                                    {% endif %}
+                                    {% endwith %}
+                                </div>
+                                {% with last=room.last_message %}
+                                {% if last %}
+                                <p style="font-size:.8rem; color:var(--text-2); margin:.2rem 0 0;
+                                           overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    {% if last.sender == user %}Вы: {% endif %}{{ last.content }}
+                                </p>
+                                {% else %}
+                                <p style="font-size:.78rem; color:var(--text-3); margin:.2rem 0 0; font-style:italic;">Начните переписку...</p>
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                        </a>
+                        {% endwith %}
+                        {% endfor %}
+                    {% else %}
+                    <div class="text-center p-4">
+                        <i class="bi bi-chat-dots" style="font-size:2rem; color:var(--text-3);"></i>
+                        <p style="font-size:.85rem; color:var(--text-3); margin-top:.5rem;">У вас пока нет диалогов.</p>
+                        <a href="{% url 'my_friends' %}" class="btn-ghost btn btn-sm mt-2">
+                            Написать другу
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right Area (Empty state when no chat selected) -->
+            <div class="col-md-8 col-12 d-none d-md-flex align-items-center justify-content-center">
+                <div class="empty-state text-center">
+                    <div class="icon"><i class="bi bi-send"></i></div>
+                    <h5>Ваши сообщения</h5>
+                    <p>Выберите диалог слева или откройте профиль друга, чтобы начать переписку.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+</div>
+{% endblock %}

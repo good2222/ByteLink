@@ -20,68 +20,50 @@ ByteLink/
 │   └── asgi.py              ← Точка входа для асинхронного сервера (WebSockets)
 │
 ├── apps/                    ← Все Django-приложения (модули) проекта
-│   ├── users/               ← Приложение для пользователей
-│   │   ├── models.py        ← Модель CustomUser (таблица пользователей в БД)
-│   │   ├── views.py         ← Обработчики запросов (что показывать по URL)
+│   ├── users/               ← Приложение для пользователей и друзей
+│   │   ├── models.py        ← Модели CustomUser и FriendRequest
+│   │   ├── views.py         ← Обработчики профилей, друзей и поиска
 │   │   ├── forms.py         ← Формы регистрации и редактирования профиля
-│   │   ├── urls.py          ← URL-маршруты для пользователей
-│   │   └── admin.py         ← Регистрация моделей в панели администратора
+│   │   └── urls.py          ← URL-маршруты для пользователей
 │   │
-│   └── posts/               ← Приложение для публикаций
-│       ├── models.py        ← Модели Post, Comment, Like (таблицы в БД)
-│       ├── views.py         ← Обработчики: создание/удаление постов, лайки
-│       ├── forms.py         ← Формы создания поста и комментария
-│       └── urls.py          ← URL-маршруты для постов
+│   ├── posts/               ← Приложение для публикаций
+│   │   ├── models.py        ← Модели Post, Comment, Like
+│   │   ├── views.py         ← Обработчики: создание/удаление постов, лайки
+│   │   ├── forms.py         ← Формы создания поста и комментария
+│   │   └── urls.py          ← URL-маршруты для постов
+│   │
+│   └── groups/              ← Приложение для групп (сообществ)
+│       ├── models.py        ← Модели Group и GroupMembership
+│       ├── views.py         ← Обработчики: каталог, создание, вступление
+│       ├── forms.py         ← Форма создания/редактирования группы
+│       └── urls.py          ← URL-маршруты для групп
 │
 ├── templates/               ← HTML-шаблоны (внешний вид страниц)
 │   ├── base.html            ← Базовый шаблон (шапка, навигация, футер)
 │   ├── home.html            ← Главная страница (лента постов)
-│   ├── registration/
-│   │   ├── login.html       ← Страница входа
-│   │   └── register.html    ← Страница регистрации
-│   └── users/
-│       ├── profile.html     ← Страница профиля пользователя
-│       └── profile_edit.html ← Страница редактирования профиля
+│   ├── registration/        ← Вход и регистрация
+│   ├── users/               ← Страницы пользователей, друзей и поиска
+│   └── groups/              ← Страницы групп (каталог, группа, создание)
 │
-├── static/                  ← Статические файлы (CSS, изображения)
-│   ├── css/
-│   │   └── style.css        ← Главный CSS-файл с дизайном сайта
-│   └── images/
-│       ├── default-avatar.png  ← Аватар по умолчанию
-│       └── default-cover.png   ← Обложка по умолчанию
-│
-├── media/                   ← Загружаемые пользователями файлы (создаётся автоматически)
-├── .env                     ← Файл с секретными ключами и настройками (не в Git)
-├── requirements.txt         ← Список Python-пакетов проекта
-└── manage.py                ← Утилита для управления Django-проектом
+└── docs/comment_bylink/     ← Документация (этот раздел)
 
 
-# КАК РАБОТАЕТ DJANGO (кратко)
+# СПИСОК ФАЙЛОВ С КОММЕНТАРИЯМИ СТРОКА ЗА СТРОКОЙ
 
-1. Пользователь вводит URL в браузере (например: /profile/egor/)
-2. Django смотрит в urls.py → находит нужный path()
-3. Path вызывает нужный View-класс
-4. View берёт данные из БД через модели (Model)
-5. View передаёт данные в HTML-шаблон (Template)
-6. Шаблон рендерится и отправляется пользователю как готовая HTML-страница
-
-Это называется паттерн MVT: Model → View → Template
-(Аналог MVC из других фреймворков)
-
-
-# СПИСОК ФАЙЛОВ В ЭТОЙ ПАПКЕ (docs/comment_bylink/)
-
-| Файл                 | Оригинал                              | Описание
+| Документ             | Исходный файл в проекте               | Описание
 |----------------------|---------------------------------------|------------------------------
 | settings.py          | social_network/settings.py            | Настройки Django-проекта
 | urls_main.py         | social_network/urls.py                | Главные URL-маршруты
 | urls_users.py        | apps/users/urls.py                    | URL-маршруты пользователей
-| users_models.py      | apps/users/models.py                  | Модель CustomUser
-| users_views.py       | apps/users/views.py                   | View-классы пользователей
+| users_models.py      | apps/users/models.py                  | Модель CustomUser и FriendRequest
+| users_views.py       | apps/users/views.py                   | View-классы пользователей и друзей
 | users_forms.py       | apps/users/forms.py                   | Формы пользователей
 | posts_models.py      | apps/posts/models.py                  | Модели Post, Comment, Like
-| posts_views.py       | apps/posts/views.py                   | View-классы постов
+| posts_views.py       | apps/posts/views.py                   | View-классы постов и лайков
 | posts_forms.py       | apps/posts/forms.py                   | Формы постов
 | posts_urls.py        | apps/posts/urls.py                    | URL-маршруты постов
+| groups_models.py     | apps/groups/models.py                 | Модели Group и GroupMembership
+| groups_views.py      | apps/groups/views.py                  | View-классы сообществ
+| groups_urls.py       | apps/groups/urls.py                   | URL-маршруты групп
 | README.md            | (этот файл)                           | Оглавление и структура
 """

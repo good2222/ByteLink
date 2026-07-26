@@ -9,6 +9,7 @@ urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('', include('apps.users.urls')),
     path('', include('apps.posts.urls')),
+    path('', include('apps.groups.urls')),
 ]
 
 if settings.DEBUG:

@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-
+from django.db.models import Count
 class Post(models.Model):
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -16,6 +16,9 @@ class Post(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+    group = models.ForeignKey("groups.Group",on_delete=models.CASCADE, null=True, blank=True, related_name='posts', verbose_name='Группа')
 
     class Meta:
         ordering = ['-created_at'] 

@@ -14,6 +14,9 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
+        group_id = self.request.POST.get('group_id')
+        if group_id:
+            form.instance.group_id = group_id
         return super().form_valid(form)
 
     def get_success_url(self):

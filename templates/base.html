@@ -71,6 +71,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {% if 'group' in request.resolver_match.url_name %}active{% endif %}"
+                           href="{% url 'group_list' %}">
+                            <i class="bi bi-collection-fill"></i> Группы
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#"><i class="bi bi-chat-text-fill"></i> Сообщения</a>
                     </li>
                     <li class="nav-item me-lg-2">

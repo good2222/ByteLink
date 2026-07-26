@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block title %}Сообщества — ByteLink{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-2">
+<div class="col-lg-9 col-12">
+
+    <!-- Header & Action -->
+    <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-4 fade-up">
+        <div>
+            <h4 style="font-family:var(--font-alt); margin:0;">
+                <i class="bi bi-collection-fill me-2" style="color:var(--accent-2);"></i>Сообщества
+            </h4>
+            <p style="color:var(--text-3); font-size:.85rem; margin:.2rem 0 0;">
+                Находите интересные группы или создавайте свои
+            </p>
+        </div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'group_create' %}" class="btn-primary-app flex-shrink-0" style="display:inline-flex;">
+            <i class="bi bi-plus-lg me-1"></i> Создать группу
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Search form -->
+    <div class="glass p-3 mb-4 fade-up">
+        <form action="{% url 'group_list' %}" method="get" class="d-flex gap-2">
+            <input type="text" name="q" class="form-control" placeholder="Поиск по названию или описанию группы..."
+                   value="{{ query }}">
+            <button type="submit" class="btn-primary-app flex-shrink-0">
+                <i class="bi bi-search me-1"></i> Найти
+            </button>
+        </form>
+    </div>
+
+    <!-- My Groups Section -->
+    {% if my_groups and not query %}
+    <div class="mb-4 fade-up">
+        <h6 class="mb-3" style="color:var(--text-3); font-size:.8rem; text-transform:uppercase; letter-spacing:.08em;">
+            <i class="bi bi-star-fill me-1" style="color:var(--accent-2);"></i> Мои группы ({{ my_groups|length }})
+        </h6>
+        <div class="row g-3">
+            {% for g in my_groups %}
+            <div class="col-md-4 col-sm-6">
+                <div class="glass p-3 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <img src="{{ g.get_avatar_url }}" alt="avatar"
+                                 style="width:44px; height:44px; border-radius:12px; object-fit:cover; border:1px solid var(--border);">
+                            <div>
+                                <a href="{% url 'group_detail' pk=g.pk %}"
+                                   style="color:var(--text-1); font-weight:700; font-family:var(--font-alt); font-size:.92rem; display:block;">
+                                    {{ g.title }}
+                                </a>
+                                <span style="font-size:.75rem; color:var(--text-3);">
+                                    <i class="bi bi-people me-1"></i>{{ g.members_count }} участников
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{% url 'group_detail' pk=g.pk %}" class="btn-ghost btn btn-sm w-100 mt-2 text-center" style="font-size:.8rem;">
+                        Открыть
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- All Groups Grid -->
+    <h6 class="mb-3 fade-up" style="color:var(--text-3); font-size:.8rem; text-transform:uppercase; letter-spacing:.08em;">
+        {% if query %}Результаты поиска ({{ groups|length }}){% else %}Все сообщества{% endif %}
+    </h6>
+
+    {% if groups %}
+    <div class="row g-3">
+        {% for g in groups %}
+        <div class="col-md-6 col-12 fade-up">
+            <div class="glass overflow-hidden h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <!-- Group mini cover -->
+                    <div style="height:90px; background-size:cover; background-position:center;
+                                background-image: url('{{ g.get_cover_url }}'); position:relative;">
+                        <div style="position:absolute; inset:0; background:linear-gradient(to bottom, transparent, rgba(0,0,0,.8));"></div>
+                    </div>
+
+                    <div class="p-3" style="margin-top:-30px; position:relative; z-index:2;">
+                        <div class="d-flex align-items-end gap-3 mb-2">
+                            <img src="{{ g.get_avatar_url }}" alt="avatar"
+                                 style="width:56px; height:56px; border-radius:14px; object-fit:cover;
+                                        border:2px solid var(--bg); box-shadow:0 0 0 2px var(--border); flex-shrink:0;">
+                            <div>
+                                <a href="{% url 'group_detail' pk=g.pk %}"
+                                   style="color:var(--text-1); font-weight:700; font-family:var(--font-alt); font-size:1.05rem; display:block;">
+                                    {{ g.title }}
+                                </a>
+                                <span style="font-size:.78rem; color:var(--text-3);">
+                                    <i class="bi bi-people me-1"></i>{{ g.members_count }} участников · создана {{ g.created_at|date:"d.m.Y" }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <p style="font-size:.85rem; color:var(--text-2); margin-top:.5rem;
+                                  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                            {{ g.description }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="p-3 pt-0 d-flex gap-2">
+                    <a href="{% url 'group_detail' pk=g.pk %}" class="btn-ghost btn btn-sm flex-grow-1 text-center">
+                        Перейти в группу
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass fade-up">
+        <div class="empty-state">
+            <div class="icon"><i class="bi bi-collection"></i></div>
+            <h5>Группы не найдены</h5>
+            <p>{% if query %}По запросу "{{ query }}" ничего не найдено.{% else %}Ещё не создано ни одного сообщества. Будьте первыми!{% endif %}</p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'group_create' %}" class="btn-primary-app mt-2" style="display:inline-flex;">
+                <i class="bi bi-plus-lg me-1"></i> Создать группу
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+</div>
+{% endblock %}

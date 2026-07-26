@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Создание группы — ByteLink{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+<div class="col-lg-6 col-md-8 col-12">
+
+    <div class="glass p-4 fade-up">
+        <h4 class="mb-4" style="font-family:var(--font-alt);">
+            <i class="bi bi-plus-circle-fill me-2" style="color:var(--accent-2);"></i>Создание нового сообщества
+        </h4>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="id_title" class="form-label">Название группы</label>
+                {{ form.title }}
+                {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="id_description" class="form-label">Описание группы</label>
+                {{ form.description }}
+                {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Аватарка группы</label>
+                <label for="id_avatar" class="btn-ghost btn w-100 justify-content-center" style="cursor:pointer;">
+                    <i class="bi bi-image me-1"></i> Выбрать аватар
+                </label>
+                {{ form.avatar }}
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Обложка группы</label>
+                <label for="id_cover_image" class="btn-ghost btn w-100 justify-content-center" style="cursor:pointer;">
+                    <i class="bi bi-card-image me-1"></i> Выбрать обложку
+                </label>
+                {{ form.cover_image }}
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center pt-2" style="border-top:1px solid var(--border);">
+                <a href="{% url 'group_list' %}" class="btn-ghost btn">Отмена</a>
+                <button type="submit" class="btn-primary-app">
+                    <i class="bi bi-check-lg me-1"></i> Создать группу
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+</div>
+{% endblock %}

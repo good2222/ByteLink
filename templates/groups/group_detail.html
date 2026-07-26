@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% block title %}{{ group.title }} — Сообщество ByteLink{% endblock %}
+
+{% block content %}
+<div class="row g-4 mt-1">
+<div class="col-lg-9 mx-auto">
+
+    <!-- ── GROUP HEADER ── -->
+    <div class="glass rounded-4 overflow-hidden mb-4 fade-up">
+        <div class="profile-cover" style="background-image: url('{{ group.get_cover_url }}');"></div>
+        <div class="p-4">
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-end
+                        justify-content-between gap-3" style="margin-top:-60px;">
+                <img src="{{ group.get_avatar_url }}" class="profile-avatar" alt="avatar" style="position:relative;z-index:2; border-radius:20px;">
+
+                <!-- Action buttons -->
+                <div class="d-flex gap-2 flex-wrap mt-3 mt-md-0">
+                    {% if user.is_authenticated %}
+                        {% if is_group_admin %}
+                            <a href="{% url 'group_edit' pk=group.pk %}" class="btn-ghost btn btn-sm">
+                                <i class="bi bi-gear-fill me-1"></i> Настройки группы
+                            </a>
+                        {% endif %}
+
+                        {% if group.creator == user %}
+                            <form action="{% url 'group_delete' pk=group.pk %}" method="post" style="display:inline;"
+                                  onsubmit="return confirm('Вы уверены, что хотите удалить группу?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-ghost btn btn-sm" style="color:var(--red) !important;">
+                                    <i class="bi bi-trash3 me-1"></i> Удалить
+                                </button>
+                            </form>
+                        {% else %}
+                            <form action="{% url 'group_join' pk=group.pk %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                {% if is_member %}
+                                    <button type="submit" class="btn-ghost btn btn-sm" onclick="return confirm('Выйти из группы?')">
+                                        <i class="bi bi-box-arrow-right me-1"></i> Выйти из группы
+                                    </button>
+                                {% else %}
+                                    <button type="submit" class="btn-primary-app btn btn-sm">
+                                        <i class="bi bi-person-plus-fill me-1"></i> Вступить в группу
+                                    </button>
+                                {% endif %}
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Group Info -->
+            <div class="mt-3">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <h2 class="mb-0" style="font-size:1.35rem;">{{ group.title }}</h2>
+                    <span class="pill"><i class="bi bi-shield-check me-1"></i>Сообщество</span>
+                </div>
+                <p style="font-size:.9rem; color:var(--text-2); margin-top:.4rem;">{{ group.description }}</p>
+
+                <!-- Stats & Meta -->
+                <div class="d-flex flex-wrap gap-4 mt-3" style="font-size:.8rem; color:var(--text-3);">
+                    <span><i class="bi bi-people-fill me-1"></i><strong>{{ group.members_count }}</strong> участников</span>
+                    <span><i class="bi bi-person me-1"></i>Создатель: <a href="{% url 'profile' username=group.creator.username %}" style="color:var(--accent-2);">@{{ group.creator.username }}</a></span>
+                    <span><i class="bi bi-calendar3 me-1"></i>Создана {{ group.created_at|date:"d.m.Y" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CONTENT LAYOUT ── -->
+    <div class="row g-4">
+
+        <!-- Feed Column -->
+        <div class="col-lg-8 col-12">
+
+            <!-- Post Composer (для участников группы) -->
+            {% if is_member %}
+            <div class="glass p-4 mb-4 fade-up composer-wrap">
+                <form action="{% url 'post_create' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="group_id" value="{{ group.id }}">
+
+                    <div class="d-flex gap-3 align-items-start">
+                        <img src="{{ user.get_avatar_url }}" class="post-author-avatar flex-shrink-0" alt="avatar">
+                        <div class="flex-grow-1">{{ post_form.content }}</div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3" style="border-top:1px solid var(--border);">
+                        <div>
+                            <label for="id_image_group" class="btn-ghost btn btn-sm" style="cursor:pointer;">
+                                <i class="bi bi-image" style="color:var(--accent-2);"></i> Фото
+                            </label>
+                            <input type="file" name="image" id="id_image_group" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn-primary-app">
+                            <i class="bi bi-send-fill"></i> Опубликовать в группе
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% else %}
+            <div class="glass p-3 mb-4 text-center fade-up">
+                <p style="color:var(--text-3); font-size:.85rem; margin:0;">
+                    <i class="bi bi-lock me-1"></i>Вступайте в группу, чтобы публиковать посты и общаться с участниками!
+                </p>
+            </div>
+            {% endif %}
+
+            <!-- Posts Feed -->
+            {% if posts %}
+                {% for post in posts %}
+                <article class="glass post-card p-4 fade-up mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <a href="{% url 'profile' username=post.author.username %}">
+                                <img src="{{ post.author.get_avatar_url }}" class="post-author-avatar" alt="avatar">
+                            </a>
+                            <div>
+                                <a href="{% url 'profile' username=post.author.username %}" class="post-author-name d-block">
+                                    {{ post.author.first_name|default:post.author.username }} {{ post.author.last_name }}
+                                </a>
+                                <span class="post-meta">{{ post.created_at|timesince }} назад</span>
+                            </div>
+                        </div>
+                        {% if post.author == user or is_group_admin or user.is_site_admin %}
+                        <form action="{% url 'post_delete' pk=post.pk %}" method="post" style="display:inline"
+                              onsubmit="return confirm('Удалить?')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action"><i class="bi bi-trash3" style="color:var(--red);"></i></button>
+                        </form>
+                        {% endif %}
+                    </div>
+
+                    <p class="post-content">{{ post.content }}</p>
+                    {% if post.image %}
+                    <img src="{{ post.image.url }}" class="post-image" alt="Изображение поста">
+                    {% endif %}
+
+                    <div class="post-actions-bar">
+                        <form action="{% url 'post_like' pk=post.pk %}" method="post" style="display:inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-like {% if post.is_liked %}liked{% endif %}">
+                                <i class="bi {% if post.is_liked %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                                {{ post.likes_count }}
+                            </button>
+                        </form>
+                        <button class="btn-action"><i class="bi bi-chat-left"></i> {{ post.comments_count }}</button>
+                    </div>
+
+                    <!-- Comments -->
+                    {% if post.comments.exists %}
+                    <div class="mt-3 pt-3" style="border-top:1px solid var(--border);">
+                        {% for comment in post.comments.all %}
+                        <div class="comment-item">
+                            <a href="{% url 'profile' username=comment.author.username %}">
+                                <img src="{{ comment.author.get_avatar_url }}" class="comment-avatar" alt="avatar">
+                            </a>
+                            <div class="comment-bubble flex-grow-1">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <a href="{% url 'profile' username=comment.author.username %}" class="comment-author">{{ comment.author.username }}</a>
+                                        <span class="comment-time ms-2">{{ comment.created_at|timesince }} назад</span>
+                                    </div>
+                                    {% if comment.author == user or post.author == user or is_group_admin or user.is_site_admin %}
+                                    <form action="{% url 'comment_delete' pk=comment.pk %}" method="post" style="display:inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-action" style="padding:.15rem .4rem; font-size:.7rem;">
+                                            <i class="bi bi-x-lg" style="color:var(--red);"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                                <p class="comment-text mb-0">{{ comment.text }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if user.is_authenticated %}
+                    <form action="{% url 'comment_create' pk=post.pk %}" method="post"
+                          class="d-flex gap-2 mt-3 align-items-center">
+                        {% csrf_token %}
+                        <img src="{{ user.get_avatar_url }}" class="comment-avatar flex-shrink-0" alt="avatar">
+                        {{ comment_form.text }}
+                        <button type="submit" class="btn-primary-app flex-shrink-0" style="padding:.45rem .85rem;">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </article>
+                {% endfor %}
+            {% else %}
+            <div class="glass fade-up">
+                <div class="empty-state">
+                    <div class="icon"><i class="bi bi-card-list"></i></div>
+                    <h5>В группе пока нет постов</h5>
+                    <p>{% if is_member %}Опубликуйте первый пост выше!{% else %}Вступите в группу, чтобы написать пост.{% endif %}</p>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Sidebar Column (Участники группы) -->
+        <div class="col-lg-4 col-12">
+            <div class="glass p-3 fade-up">
+                <h6 style="font-family:var(--font-alt); margin-bottom:.8rem;">
+                    <i class="bi bi-people me-1"></i>Участники <span style="color:var(--text-3);">({{ memberships|length }})</span>
+                </h6>
+                <div class="d-flex flex-column gap-2">
+                    {% for m in memberships %}
+                    <div class="d-flex align-items-center justify-content-between p-2 rounded-3"
+                         style="background:rgba(255,255,255,.03); border:1px solid var(--border);">
+                        <a href="{% url 'profile' username=m.user.username %}" class="d-flex align-items-center gap-2 text-decoration-none" style="min-width:0;">
+                            <img src="{{ m.user.get_avatar_url }}" alt="avatar"
+                                 style="width:34px; height:34px; border-radius:50%; object-fit:cover; flex-shrink:0;">
+                            <div style="min-width:0;">
+                                <span style="color:var(--text-1); font-weight:600; font-size:.85rem; display:block;
+                                             overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    {{ m.user.first_name|default:m.user.username }}
+                                </span>
+                                <span style="font-size:.7rem; color:var(--text-3);">@{{ m.user.username }}</span>
+                            </div>
+                        </a>
+                        <span class="pill" style="font-size:.65rem; padding:.15rem .45rem;">
+                            {{ m.get_role_display }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</div>
+{% endblock %}

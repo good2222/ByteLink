@@ -1,140 +1,170 @@
-# ============================================================
+# =====================================================================
 # ФАЙЛ: apps/posts/models.py
-# Описание: Модели Публикации, Комментария и Лайка
-# ============================================================
+# ЧТО ДЕЛАЕТ ЭТОТ ФАЙЛ:
+#   Описывает 3 таблицы в базе данных:
+#   1. Post    — публикации пользователей (текст, фото)
+#   2. Comment — комментарии к постам
+#   3. Like    — лайки (кто поставил лайк какому посту)
+# =====================================================================
 
-# Импортируем модуль models — содержит все типы полей для таблиц базы данных
 from django.db import models
+# models — основной модуль для описания структуры таблиц в БД.
 
-# settings — объект настроек Django, используем его чтобы получить AUTH_USER_MODEL
-# Это лучше, чем напрямую импортировать CustomUser, т.к. избегает циклических импортов
 from django.conf import settings
+# settings — настройки проекта (settings.py).
+# settings.AUTH_USER_MODEL — строка 'users.CustomUser'.
+# Используем так, а не импортируем CustomUser напрямую,
+# чтобы избежать кольцевых импортов между приложениями.
+
+from django.db.models import Count
+# Count — функция агрегации. Используется в запросах annotate(like_count=Count('likes')).
 
 
-# ============================================================
-# МОДЕЛЬ: Post (Публикация)
-# Каждый объект Post = одна строка в таблице posts в базе данных
-# ============================================================
+# =====================================================================
+# КЛАСС Post — Одна публикация в социальной сети
+# Аналог поста в ВКонтакте / записи в Facebook.
+# =====================================================================
 class Post(models.Model):
 
-    # Автор поста — внешний ключ (ForeignKey) на модель пользователя
-    # settings.AUTH_USER_MODEL = 'users.CustomUser' (задан в settings.py)
-    # on_delete=models.CASCADE — если пользователь удаляется, все его посты тоже удаляются
-    # related_name='posts' — позволяет обратиться к постам пользователя: user.posts.all()
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='posts')
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        # ForeignKey — связь "многие к одному". Один пользователь → много постов.
+        on_delete=models.CASCADE,
+        # CASCADE — если удалить пользователя, все его посты тоже удалятся.
+        related_name='posts'
+        # related_name='posts' — обратная связь. Теперь можно писать:
+        # user.posts.all() — все посты этого пользователя.
+    )
 
-    # Текстовое содержимое поста — без ограничения длины (TextField)
-    # verbose_name — название поля в Django Admin
     content = models.TextField(verbose_name='Текст публикации')
+    # TextField — поле для длинного текста (без ограничения длины).
+    # verbose_name — имя поля в Django Admin панели.
 
-    # Прикреплённое изображение к посту (необязательное)
-    # upload_to='posts_images/' — файлы сохраняются в папку media/posts_images/
-    # blank=True — форма не требует обязательного заполнения
-    # null=True — в базе данных разрешено хранить NULL (поле пустое)
-    image = models.ImageField(upload_to='posts_images/', blank=True, null=True, verbose_name='Изображение')
+    image = models.ImageField(
+        upload_to='posts_images/',
+        # upload_to — папка для сохранения: media/posts_images/
+        blank=True,
+        # blank=True — изображение необязательно. Пост может быть только с текстом.
+        null=True,
+        # null=True — в БД разрешено хранить NULL (пустое значение) для этого поля.
+        # Для FileField/ImageField нужно ОБА: null=True и blank=True.
+        verbose_name='Изображение'
+    )
 
-    # Дата и время создания поста
-    # auto_now_add=True — Django автоматически ставит текущее время при создании объекта
-    # Это поле нельзя изменить вручную
     created_at = models.DateTimeField(auto_now_add=True)
+    # auto_now_add=True — время создания. Django ставит АВТОМАТИЧЕСКИ, изменить нельзя.
+    # Тип: datetime (дата + время + секунды).
 
-    # Дата и время последнего изменения поста
-    # auto_now=True — Django автоматически обновляет время при каждом сохранении объекта
     updated_at = models.DateTimeField(auto_now=True)
+    # auto_now=True — время ПОСЛЕДНЕГО ИЗМЕНЕНИЯ. Обновляется при каждом .save().
+    # Разница: auto_now_add — только при создании. auto_now — при каждом сохранении.
 
-    # Мета-настройки модели
+    group = models.ForeignKey(
+        "groups.Group",
+        # "groups.Group" — строка вместо импорта класса. Django найдёт модель сам.
+        # Используем строку чтобы избежать кольцевого импорта (Post и Group ссылаются друг на друга).
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        # null=True, blank=True — пост может быть без группы (обычный пост в ленте).
+        related_name='posts',
+        # group.posts.all() — все посты этой группы.
+        verbose_name='Группа'
+    )
+
     class Meta:
-        # Сортировка по умолчанию: '-created_at' — минус означает сортировку по убыванию
-        # Самые свежие посты будут первыми в списке
         ordering = ['-created_at']
+        # ordering — сортировка по умолчанию для всех запросов Post.objects.all().
+        # '-created_at' — минус = DESC = сначала новые посты.
         verbose_name = 'Публикация'
         verbose_name_plural = 'Публикации'
 
-    # Строковое представление объекта для Django Admin и логов
     def __str__(self):
-        # Пример: "Пост #3 от egor"
         return f'Пост #{self.id} от {self.author.username}'
+        # Например: "Пост #42 от alice". Отображается в Django Admin и при print().
 
-    # Свойство: количество лайков у поста
-    # self.likes — QuerySet всех лайков (благодаря related_name='likes' в модели Like)
-    # .count() — SQL-запрос COUNT(*) — считает строки без загрузки их в память
     @property
     def likes_count(self):
+        # @property — метод работает как атрибут: post.likes_count (без скобок).
         return self.likes.count()
+        # self.likes — обратная связь к модели Like (related_name='likes').
+        # .count() — SQL: SELECT COUNT(*) FROM likes WHERE post_id=42.
 
-    # Свойство: количество комментариев у поста
-    # self.comments — QuerySet всех комментариев (related_name='comments' в модели Comment)
     @property
     def comments_count(self):
         return self.comments.count()
+        # Аналогично — количество комментариев к этому посту.
 
-    # Метод: проверяет, поставил ли конкретный пользователь лайк этому посту
-    # Используется в view для подсветки кнопки лайка
     def is_liked_by(self, user):
-        # Если пользователь не авторизован — он не мог ставить лайки
+        # Метод принимает объект пользователя и возвращает True/False.
+        # Используется в views: post.is_liked = post.is_liked_by(request.user)
         if not user.is_authenticated:
+            # Анонимный пользователь не может лайкать.
             return False
-        # .filter(user=user) — ищем лайк от этого пользователя
-        # .exists() — возвращает True/False, не загружая данные в память (эффективнее)
         return self.likes.filter(user=user).exists()
+        # .exists() — SQL: SELECT EXISTS (SELECT 1 FROM likes WHERE post_id=X AND user_id=Y)
+        # Быстрее чем .count() > 0, потому что останавливается при нахождении первой записи.
 
 
-# ============================================================
-# МОДЕЛЬ: Comment (Комментарий)
-# ============================================================
+# =====================================================================
+# КЛАСС Comment — Комментарий к посту
+# =====================================================================
 class Comment(models.Model):
 
-    # Пост, к которому относится комментарий
-    # on_delete=CASCADE — удалить пост = удалить все его комментарии
-    # related_name='comments' — доступ: post.comments.all()
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-
-    # Автор комментария — ссылка на пользователя
-    # related_name='comments' — доступ: user.comments.all() (все комментарии пользователя)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
-
-    # Текст комментария — неограниченной длины
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        # Удалили пост — удалились все его комментарии.
+        related_name='comments'
+        # post.comments.all() — все комментарии к этому посту.
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='comments'
+        # user.comments.all() — все комментарии этого пользователя.
+    )
     text = models.TextField(verbose_name='Текст комментария')
-
-    # Время создания — ставится автоматически при сохранении
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # Сортировка от старых к новым — комментарии идут в хронологическом порядке
         ordering = ['created_at']
+        # Комментарии сортируются от старых к новым (хронологический порядок).
+        # Нет минуса — ASC (возрастающий порядок).
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
 
     def __str__(self):
-        # Пример: "Комментарий egor к посту #5"
         return f'Комментарий {self.author.username} к посту #{self.post.id}'
 
 
-# ============================================================
-# МОДЕЛЬ: Like (Лайк)
-# ============================================================
+# =====================================================================
+# КЛАСС Like — Лайк (отметка "Нравится")
+# =====================================================================
 class Like(models.Model):
 
-    # Пост, которому поставлен лайк
-    # CASCADE — удалить пост = удалить все лайки на него
-    # related_name='likes' — доступ: post.likes.all()
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
-
-    # Пользователь, который поставил лайк
-    # related_name='likes' — доступ: user.likes.all()
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='likes')
-
-    # Время постановки лайка
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='likes'
+        # post.likes.all() — все лайки этого поста.
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='likes'
+        # user.likes.all() — все лайки которые поставил этот пользователь.
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # unique_together — комбинация (post, user) должна быть уникальной
-        # Это гарантирует что один пользователь не может поставить лайк дважды
-        # Django создаёт в БД UNIQUE constraint на эти два поля
         unique_together = ('post', 'user')
+        # unique_together — ограничение на уровне БД:
+        # Одна пара (post, user) может быть только ОДИН РАЗ.
+        # Это значит: пользователь не может поставить лайк дважды одному посту.
+        # SQL: UNIQUE KEY (post_id, user_id)
         verbose_name = 'Лайк'
         verbose_name_plural = 'Лайки'
 
     def __str__(self):
-        # Пример: "Лайк egor на пост #3"
         return f'Лайк {self.user.username} на пост #{self.post.id}'

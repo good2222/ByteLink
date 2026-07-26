@@ -1,203 +1,472 @@
-# ============================================================
+# =====================================================================
 # ФАЙЛ: apps/users/views.py
-# Описание: Обработчики (View) для страниц пользователей
-# Каждый View-класс отвечает за одну страницу сайта
-# ============================================================
+# ЧТО ДЕЛАЕТ ЭТОТ ФАЙЛ:
+#   Views (Представления) — это функции/классы которые обрабатывают
+#   HTTP-запросы пользователя и возвращают HTML-страницу в ответ.
+#
+#   Схема: Браузер → URL → View → (читает/пишет в БД) → Template → HTML
+#
+#   В этом файле views для:
+#   - Регистрации нового пользователя
+#   - Главной страницы (лента постов)
+#   - Страницы профиля
+#   - Редактирования профиля
+#   - Поиска пользователей
+#   - Системы друзей (список, заявки, принять/отклонить/удалить)
+# =====================================================================
 
-# render — функция для рендеринга HTML шаблона с данными
-# redirect — функция для перенаправления на другой URL
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+# render(request, template, context) — рендерит HTML-шаблон и возвращает HTTP-ответ.
+# redirect(url_name) — перенаправляет браузер на другую страницу (HTTP 302).
+# get_object_or_404(Model, **kwargs) — ищет объект в БД. Если не нашёл — отдаёт 404.
 
-# reverse_lazy — строит URL по имени маршрута (как {% url %} в шаблоне)
-# Используется в классовых views вместо reverse() т.к. выполняется лениво (при запросе)
 from django.urls import reverse_lazy
+# reverse_lazy('url_name') — преобразует имя URL-маршрута в адрес '/profile/'.
+# lazy (ленивый) — вычисляется только когда реально нужен (важно при инициализации класса).
 
-# Базовые классы для классовых представлений:
-# CreateView  — страница с формой для создания объекта
-# DetailView  — страница с деталями одного объекта
-# UpdateView  — страница с формой для редактирования объекта
-# TemplateView — просто рендерит шаблон (без привязки к модели)
-from django.views.generic import CreateView, DetailView, UpdateView, TemplateView
+from django.views.generic import CreateView, DetailView, UpdateView, TemplateView, View, ListView
+# Django предоставляет готовые "классовые представления" (Class-Based Views, CBV):
+# CreateView  — для создания объекта (показывает форму, сохраняет в БД).
+# DetailView  — для показа одного объекта по ID или slug.
+# UpdateView  — для редактирования существующего объекта.
+# TemplateView — просто рендерит шаблон (без модели).
+# View        — самый базовый класс. Методы get() и post() пишешь сам.
+# ListView    — для показа списка объектов.
 
-# LoginRequiredMixin — миксин (примесь), который проверяет авторизацию
-# Если пользователь не авторизован — перенаправляет на страницу входа
 from django.contrib.auth.mixins import LoginRequiredMixin
+# LoginRequiredMixin — "примесь" (mixin). Добавь её в класс View,
+# и Django автоматически проверит: вошёл ли пользователь?
+# Если НЕТ — перенаправит на страницу входа (settings.LOGIN_URL).
 
-# login — функция для авторизации пользователя (создаёт сессию)
 from django.contrib.auth import login
+# login(request, user) — создаёт сессию. После этого request.user = вошедший пользователь.
 
-# get_object_or_404 — получает объект из БД или возвращает HTTP 404 если не найден
-from django.shortcuts import get_object_or_404
+from django.db.models import Count, Q
+# Count — функция агрегации SQL: COUNT(*). Считает количество связанных объектов.
+# Q — объект для сложных SQL условий: Q(a=1) | Q(b=2) = WHERE a=1 OR b=2.
 
-# Импортируем нашу модель пользователя
-from .models import CustomUser
+from django.contrib import messages
+# messages — фреймворк Django для одноразовых сообщений.
+# messages.success(request, 'Текст') — добавляет сообщение в сессию.
+# В шаблоне {{ messages }} показывает его один раз, потом удаляет.
 
-# Импортируем формы: для регистрации и редактирования профиля
+from .models import CustomUser, FriendRequest
+# . (точка) = текущий пакет (apps/users/). Импортируем наши модели.
+
 from .forms import CustomUserCreationForm, UserProfileForm
+# Формы — классы Django для HTML-форм. Описывают поля, валидацию, отображение.
 
-# Импортируем модель Post чтобы показывать посты на главной и в профиле
 from apps.posts.models import Post
+# Импортируем модель Post из другого приложения для отображения постов в ленте.
 
-# Импортируем формы для поста и комментария — они нужны на главной странице и в профиле
 from apps.posts.forms import PostForm, CommentForm
+# PostForm, CommentForm — формы для создания постов и комментариев прямо с ленты.
 
 
-# ============================================================
-# VIEW: RegisterView — Страница регистрации (/register/)
-# CreateView автоматически обрабатывает GET (показать форму) и POST (сохранить)
-# ============================================================
+# =====================================================================
+# RegisterView — Страница регистрации нового пользователя
+# URL: /register/
+# =====================================================================
 class RegisterView(CreateView):
+    # CreateView — готовый класс для создания объекта через форму.
+    # Автоматически: показывает форму (GET) + сохраняет объект в БД (POST).
 
-    # Модель, объект которой создаётся — пользователь
     model = CustomUser
+    # model — с какой моделью работаем. CreateView создаст объект CustomUser.
 
-    # Форма которую показываем пользователю на странице регистрации
     form_class = CustomUserCreationForm
+    # form_class — какую форму показывать пользователю для заполнения.
 
-    # HTML-шаблон для отрисовки страницы
     template_name = 'registration/register.html'
+    # template_name — путь к HTML-шаблону который будет отображаться.
 
-    # URL куда перенаправить после успешной регистрации
-    # reverse_lazy('home') → '/' (главная страница)
     success_url = reverse_lazy('home')
+    # success_url — куда перенаправить ПОСЛЕ успешного создания.
+    # reverse_lazy('home') = '/'. Перейдёт на главную.
 
-    # form_valid вызывается когда форма прошла валидацию и данные корректны
     def form_valid(self, form):
-        # Вызываем родительский form_valid — он сохраняет пользователя в БД
+        # form_valid() — вызывается когда форма прошла валидацию (все поля верны).
+        # Переопределяем чтобы СРАЗУ входить в систему после регистрации.
         response = super().form_valid(form)
-        # self.object — только что созданный пользователь
-        # login() — создаёт сессию, пользователь автоматически входит после регистрации
+        # super().form_valid(form) — вызываем оригинальный метод CreateView,
+        # который сохраняет пользователя в БД. self.object = созданный пользователь.
         login(self.request, self.object)
-        # Возвращаем ответ (редирект на home)
+        # login() — создаём сессию. Пользователь сразу входит на сайт.
+        # Без этого после регистрации нужно было бы входить отдельно.
         return response
 
-    # dispatch вызывается самым первым, при любом типе запроса (GET или POST)
     def dispatch(self, request, *args, **kwargs):
-        # Если пользователь уже авторизован — нет смысла показывать страницу регистрации
+        # dispatch() — первый метод который вызывается при любом запросе.
+        # Переопределяем чтобы уже вошедших пользователей не пускать на /register/.
         if request.user.is_authenticated:
-            # Перенаправляем его на главную
+            # is_authenticated — True если пользователь вошёл в систему.
             return redirect('home')
-        # Иначе продолжаем обычную обработку
+            # Уже зарегистрирован? Перенаправляем на главную.
         return super().dispatch(request, *args, **kwargs)
+        # Если НЕ авторизован — продолжаем стандартную обработку.
 
 
-# ============================================================
-# VIEW: HomeView — Главная страница / Лента (/  или /home/)
-# LoginRequiredMixin — только для авторизованных пользователей
-# TemplateView — просто рендерит шаблон, нет привязки к одной модели
-# ============================================================
+# =====================================================================
+# HomeView — Главная страница / Лента новостей
+# URL: / (корень сайта)
+# =====================================================================
 class HomeView(LoginRequiredMixin, TemplateView):
+    # LoginRequiredMixin — первым делом проверяет авторизацию.
+    # Если не вошёл — перенаправит на /login/.
+    # TemplateView — просто рендерит шаблон, БЕЗ автоматической модели.
 
-    # Шаблон главной страницы с лентой постов
     template_name = 'home.html'
 
-    # get_context_data — подготавливает данные для шаблона
-    # context — словарь переменных, доступных в шаблоне через {{ имя }}
     def get_context_data(self, **kwargs):
-        # Вызываем родительский метод чтобы не потерять стандартные данные контекста
+        # get_context_data() — метод для передачи данных в шаблон.
+        # **kwargs — принимает любые именованные аргументы (стандарт Django CBV).
         context = super().get_context_data(**kwargs)
+        # Вызываем родительский метод чтобы получить базовый context-словарь.
 
-        # Добавляем пустую форму для создания поста (показывается в верху ленты)
         context['post_form'] = PostForm()
+        # Добавляем пустую форму поста — она рендерится прямо на главной странице.
 
-        # Добавляем пустую форму для написания комментария
         context['comment_form'] = CommentForm()
+        # Пустая форма комментария (для каждого поста).
 
-        # Получаем все посты из БД
-        # select_related('author') — JOIN с таблицей пользователей в одном SQL-запросе
-        # Без этого Django делал бы отдельный запрос для каждого поста чтобы получить автора
-        # prefetch_related('likes', 'comments__author') — загружает лайки и комментарии с авторами
-        # эффективно: один запрос на лайки + один на комментарии (не N запросов)
-        posts = Post.objects.select_related('author').prefetch_related('likes', 'comments__author').all()
+        friends = self.request.user.get_friends()
+        # get_friends() — наш метод из models.py. Возвращает всех друзей текущего юзера.
 
-        # Для каждого поста добавляем флаг: поставил ли текущий пользователь лайк
+        # Формируем умную ленту постов:
+        posts = (
+            Post.objects
+            # Post.objects — менеджер запросов Django (как посредник между кодом и SQL).
+
+            .select_related('author')
+            # select_related('author') — ОПТИМИЗАЦИЯ: делает SQL JOIN с таблицей автора.
+            # Без него: для каждого поста из 100 — отдельный SQL-запрос к юзерам (100 запросов!).
+            # С ним: всё в одном запросе. Это решение проблемы "N+1 запросов".
+
+            .prefetch_related('likes', 'comments__author')
+            # prefetch_related — другой тип оптимизации для ManyToMany и обратных FK.
+            # 'likes' — все лайки постов загружаются одним дополнительным запросом.
+            # 'comments__author' — комментарии + их авторы загружаются 2-мя запросами.
+            # __ (двойное подчёркивание) — переход по связи в ORM Django.
+
+            .filter(Q(author=self.request.user) | Q(author__in=friends))
+            # filter() — WHERE в SQL. Показываем посты:
+            # Q(author=self.request.user) — мои собственные посты, ИЛИ
+            # Q(author__in=friends) — посты моих друзей.
+            # author__in — WHERE author_id IN (список id друзей).
+
+            .annotate(like_count=Count('likes'))
+            # annotate() — добавляет вычисляемое поле к каждому посту.
+            # like_count=Count('likes') — считает количество лайков КАЖДОГО поста.
+            # Это делается в ОДНОМ SQL запросе с GROUP BY. Очень эффективно!
+
+            .order_by('-like_count', '-created_at')
+            # order_by() — сортировка. ORDER BY в SQL.
+            # '-like_count' — минус = DESC (убывающий порядок). Больше лайков = выше.
+            # '-created_at' — если лайков поровну — новее посты идут первыми.
+        )
+
         for post in posts:
-            # is_liked_by() — метод модели Post, возвращает True/False
-            # Добавляем атрибут is_liked динамически к объекту поста
+            # Для каждого поста добавляем атрибут: лайкнул ли текущий юзер этот пост.
             post.is_liked = post.is_liked_by(self.request.user)
+            # is_liked_by() — метод из Post модели (проверяет наличие Like в БД).
+            # Нам нужно это чтобы в шаблоне показать "сердечко" закрашенным или нет.
 
-        # Передаём посты в шаблон под именем 'feed_posts'
-        # В шаблоне: {% for post in feed_posts %}
         context['feed_posts'] = posts
+        # Передаём посты в шаблон под ключом 'feed_posts'.
+        # В шаблоне: {% for post in feed_posts %}
 
-        # Возвращаем готовый словарь данных для шаблона
         return context
 
 
-# ============================================================
-# VIEW: ProfileView — Страница профиля пользователя (/profile/username/)
-# DetailView — автоматически получает один объект из БД и передаёт в шаблон
-# ============================================================
+# =====================================================================
+# ProfileView — Страница профиля пользователя
+# URL: /profile/<username>/
+# =====================================================================
 class ProfileView(LoginRequiredMixin, DetailView):
+    # DetailView — готовый класс для показа ОДНОГО объекта.
 
-    # Модель из которой берём данные — пользователь
     model = CustomUser
-
-    # HTML-шаблон страницы профиля
     template_name = 'users/profile.html'
-
-    # Имя переменной в шаблоне для объекта профиля
-    # В шаблоне: {{ profile_user.username }}, {{ profile_user.avatar }} и т.д.
     context_object_name = 'profile_user'
+    # context_object_name — под каким именем объект передаётся в шаблон.
+    # Без этого Django передаёт под именем 'object' или 'customuser'. С этим — 'profile_user'.
 
-    # slug_field — поле модели по которому ищем пользователя (не по ID, а по username)
     slug_field = 'username'
+    # slug_field — какое поле модели считать "slug" (уникальный текстовый идентификатор).
+    # Django будет искать пользователя по полю username, а не по pk (id).
 
-    # slug_url_kwarg — название параметра в URL: /profile/<str:username>/
     slug_url_kwarg = 'username'
+    # slug_url_kwarg — имя параметра в URL: path('profile/<str:username>/', ...)
 
-    # Добавляем дополнительные данные в контекст шаблона
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # self.object — объект пользователя которого просматриваем (установлен DetailView).
 
-        # Форма для создания поста (если смотрим свой профиль)
         context['post_form'] = PostForm()
-
-        # Форма для комментария
         context['comment_form'] = CommentForm()
 
-        # self.object — объект пользователя, чей профиль просматривается
-        # .posts — все посты этого пользователя (through related_name='posts')
-        posts = self.object.posts.select_related('author').prefetch_related('likes', 'comments__author').all()
-
-        # Помечаем, поставил ли текущий пользователь лайк каждому посту
+        # Посты этого пользователя, сортировка по лайкам:
+        posts = (
+            self.object.posts       # self.object.posts — все посты этого юзера.
+            # .posts работает благодаря related_name='posts' в модели Post.
+            .select_related('author')
+            .prefetch_related('likes', 'comments__author')
+            .annotate(like_count=Count('likes'))
+            .order_by('-like_count', '-created_at')
+        )
         for post in posts:
             post.is_liked = post.is_liked_by(self.request.user)
-
-        # Передаём посты пользователя в шаблон
         context['user_posts'] = posts
 
-        # Флаг: просматривает ли пользователь свой собственный профиль
-        # Если True — показываем кнопку "Редактировать" вместо "Добавить в друзья"
         context['is_own_profile'] = self.object == self.request.user
+        # True если я смотрю свой профиль (показываем кнопку "Редактировать").
+        # False если это профиль другого юзера (показываем кнопку "Добавить в друзья").
+
+        context['friends'] = self.object.get_friends()[:6]
+        # [:6] — срез Python: берём только первые 6 друзей для блока "Друзья" в профиле.
+
+        context['friends_count'] = self.object.get_friends().count()
+        # Общее количество друзей для отображения числа.
+
+        if not context['is_own_profile']:
+            # Если смотрим чужой профиль — определяем статус дружбы.
+            me = self.request.user
+            other = self.object
+            req = FriendRequest.objects.filter(
+                Q(from_user=me, to_user=other) | Q(from_user=other, to_user=me)
+            ).first()
+            # .first() — берём первый (или None если нет ни одного).
+            # Ищем любую заявку между нами двумя, в любую сторону.
+
+            context['friend_request'] = req
+            # Передаём объект заявки в шаблон.
+
+            if req:
+                context['are_friends'] = req.status == 'accepted'
+                # True = мы уже друзья. Показываем кнопку "Удалить из друзей".
+
+                context['request_pending_sent'] = req.status == 'pending' and req.from_user == me
+                # True = я отправил заявку, она ещё ожидает. Показываем "Заявка отправлена".
+
+                context['request_pending_received'] = req.status == 'pending' and req.to_user == me
+                # True = он отправил мне заявку. Показываем кнопки "Принять" / "Отклонить".
+            else:
+                # Заявки нет вообще. Показываем кнопку "Добавить в друзья".
+                context['are_friends'] = False
+                context['request_pending_sent'] = False
+                context['request_pending_received'] = False
 
         return context
 
 
-# ============================================================
-# VIEW: ProfileEditView — Страница редактирования профиля (/profile/edit/)
-# UpdateView — показывает форму с текущими данными, сохраняет изменения
-# ============================================================
+# =====================================================================
+# ProfileEditView — Редактирование профиля текущего пользователя
+# URL: /profile/edit/
+# =====================================================================
 class ProfileEditView(LoginRequiredMixin, UpdateView):
+    # UpdateView — готовый класс для редактирования объекта через форму.
 
-    # Модель для обновления — пользователь
     model = CustomUser
-
-    # Форма с полями: имя, фамилия, bio, статус, аватар, обложка, дата рождения, город, сайт
     form_class = UserProfileForm
-
-    # HTML-шаблон страницы редактирования
     template_name = 'users/profile_edit.html'
 
-    # get_object — определяет КАКОЙ объект редактируем
-    # По умолчанию UpdateView ищет объект по pk в URL, но нам нужен текущий пользователь
     def get_object(self, queryset=None):
-        # Возвращаем текущего авторизованного пользователя
-        # Это гарантирует что пользователь редактирует только свой профиль
+        # get_object() — переопределяем чтобы редактировать ТОЛЬКО СВОЙ профиль.
+        # По умолчанию UpdateView ищет объект по pk из URL.
+        # Мы заменяем это: всегда редактируем текущего пользователя.
         return self.request.user
+        # request.user — пользователь из текущей сессии (тот кто вошёл в систему).
 
-    # URL для перенаправления после успешного сохранения
     def get_success_url(self):
-        # Перенаправляем обратно на профиль пользователя
-        # kwargs={'username': ...} — передаём username в URL /profile/egor/
+        # После успешного сохранения — перенаправляем на страницу профиля.
         return reverse_lazy('profile', kwargs={'username': self.request.user.username})
+        # kwargs={'username': ...} — передаём аргумент в URL-шаблон /profile/<username>/
+
+
+# =====================================================================
+# UserSearchView — Поиск пользователей
+# URL: /users/search/?q=запрос
+# =====================================================================
+class UserSearchView(LoginRequiredMixin, ListView):
+    # ListView — показывает список объектов. Автоматически передаёт в шаблон queryset.
+
+    template_name = 'users/search.html'
+    context_object_name = 'results'
+    # context_object_name — в шаблоне: {% for user in results %}
+
+    paginate_by = 20
+    # paginate_by — ListView автоматически нарежет результаты по 20 на страницу.
+    # В шаблоне: page_obj, paginator, is_paginated для кнопок "Следующая/Предыдущая".
+
+    def get_queryset(self):
+        # get_queryset() — метод который возвращает список объектов для показа.
+
+        query = self.request.GET.get('q', '').strip()
+        # request.GET — словарь GET-параметров из URL.
+        # .get('q', '') — берём параметр 'q', если нет — пустая строка.
+        # .strip() — убираем пробелы по краям.
+
+        if not query:
+            return CustomUser.objects.none()
+            # objects.none() — пустой QuerySet. Ничего не показываем если запрос пустой.
+
+        return (
+            CustomUser.objects
+            .filter(
+                Q(username__icontains=query) |
+                # __icontains — SQL ILIKE '%query%'. Поиск без учёта регистра.
+                Q(first_name__icontains=query) |
+                Q(last_name__icontains=query)
+                # Ищем по имени, фамилии или юзернейму.
+            )
+            .exclude(pk=self.request.user.pk)
+            # .exclude() — исключаем из результатов. Себя в поиске не показываем.
+            .order_by('username')
+            # Сортируем по алфавиту.
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')
+        # Передаём поисковый запрос чтобы он остался в поле input в шаблоне.
+        return context
+
+
+# =====================================================================
+# FriendsListView — Список друзей пользователя
+# URL: /friends/ или /friends/<username>/
+# =====================================================================
+class FriendsListView(LoginRequiredMixin, View):
+    # View — базовый класс. Мы сами пишем метод get() для обработки GET-запросов.
+
+    def get(self, request, username=None):
+        # username=None — параметр необязательный.
+        # Если передан username — показываем друзей другого юзера.
+        # Если не передан — показываем своих друзей.
+
+        if username:
+            profile_user = get_object_or_404(CustomUser, username=username)
+            # get_object_or_404 — если пользователь не найден — возвращает страницу 404.
+        else:
+            profile_user = request.user
+            # Без username — показываем свои собственные друзья.
+
+        friends = profile_user.get_friends()
+        # get_friends() — метод из CustomUser, возвращает всех принятых друзей.
+
+        return render(request, 'users/friends.html', {
+            # render() — рендерит шаблон friends.html с этими данными.
+            'profile_user': profile_user,
+            'friends': friends,
+        })
+
+
+# =====================================================================
+# FriendRequestsView — Входящие заявки в друзья
+# URL: /friend-requests/
+# =====================================================================
+class FriendRequestsView(LoginRequiredMixin, View):
+    def get(self, request):
+        incoming = FriendRequest.objects.filter(
+            to_user=request.user,   # адресованные текущему пользователю
+            status='pending'         # только ожидающие (не принятые/отклонённые)
+        ).select_related('from_user').order_by('-created_at')
+        # select_related('from_user') — загружаем отправителя одним JOIN-запросом.
+        # order_by('-created_at') — сначала самые новые заявки.
+
+        return render(request, 'users/friend_requests.html', {
+            'incoming': incoming,
+        })
+
+
+# =====================================================================
+# SendFriendRequestView — Отправить заявку в друзья
+# URL: /friends/request/send/<username>/  (POST-запрос)
+# =====================================================================
+class SendFriendRequestView(LoginRequiredMixin, View):
+    def post(self, request, username):
+        # Метод post() обрабатывает POST-запросы (отправка формы, клик кнопки).
+
+        to_user = get_object_or_404(CustomUser, username=username)
+        # Находим пользователя которому отправляем заявку.
+
+        if to_user == request.user:
+            # Защита: нельзя добавить самого себя в друзья.
+            messages.error(request, 'Нельзя добавить себя в друзья.')
+            return redirect('profile', username=username)
+
+        existing = FriendRequest.objects.filter(
+            Q(from_user=request.user, to_user=to_user) |
+            Q(from_user=to_user, to_user=request.user)
+        ).first()
+        # Ищем заявку в любую сторону — а вдруг он уже отправил заявку мне?
+
+        if existing:
+            # Заявка уже есть. Возможно отклонённая.
+            if existing.status == 'declined' and existing.from_user == request.user:
+                # Если Я отправлял и мне отклонили — можно отправить снова.
+                existing.status = 'pending'
+                existing.save()
+                # .save() — сохраняем изменённый объект в БД. SQL: UPDATE.
+                messages.success(request, f'Заявка отправлена пользователю {to_user.username}.')
+            else:
+                messages.info(request, 'Заявка уже существует.')
+        else:
+            # Заявки не было — создаём новую.
+            FriendRequest.objects.create(from_user=request.user, to_user=to_user)
+            # .create() — SQL INSERT. Создаёт запись в таблице friend_requests.
+            messages.success(request, f'Заявка отправлена пользователю {to_user.username}.')
+
+        return redirect('profile', username=username)
+        # После отправки — возвращаем на профиль этого пользователя.
+
+
+# =====================================================================
+# AcceptFriendRequestView — Принять заявку в друзья
+# URL: /friends/request/<pk>/accept/  (POST-запрос)
+# =====================================================================
+class AcceptFriendRequestView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        # pk — первичный ключ (ID) заявки в БД.
+        freq = get_object_or_404(FriendRequest, pk=pk, to_user=request.user, status='pending')
+        # get_object_or_404 с несколькими аргументами — это защита!
+        # Мы не просто ищем по pk. Мы требуем:
+        # - to_user=request.user — эта заявка адресована МНЕ (нельзя принять чужую).
+        # - status='pending' — она ещё ожидает (нельзя принять уже принятую).
+        freq.status = 'accepted'
+        # Меняем статус с 'pending' на 'accepted'.
+        freq.save()
+        # SQL: UPDATE friend_requests SET status='accepted' WHERE id=pk
+        messages.success(request, f'Вы приняли заявку от {freq.from_user.username}.')
+        return redirect(request.META.get('HTTP_REFERER', 'friend_requests'))
+        # HTTP_REFERER — заголовок браузера с URL предыдущей страницы.
+        # Возвращаемся туда откуда пришли. Если нет — на страницу заявок.
+
+
+# =====================================================================
+# DeclineFriendRequestView — Отклонить заявку в друзья
+# =====================================================================
+class DeclineFriendRequestView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        freq = get_object_or_404(FriendRequest, pk=pk, to_user=request.user, status='pending')
+        freq.status = 'declined'
+        freq.save()
+        messages.info(request, f'Заявка от {freq.from_user.username} отклонена.')
+        return redirect(request.META.get('HTTP_REFERER', 'friend_requests'))
+
+
+# =====================================================================
+# RemoveFriendView — Удалить из друзей
+# URL: /friends/remove/<username>/  (POST-запрос)
+# =====================================================================
+class RemoveFriendView(LoginRequiredMixin, View):
+    def post(self, request, username):
+        other = get_object_or_404(CustomUser, username=username)
+        FriendRequest.objects.filter(
+            Q(from_user=request.user, to_user=other) |
+            Q(from_user=other, to_user=request.user)
+        ).delete()
+        # .delete() — SQL DELETE. Удаляем заявку/дружбу полностью из БД.
+        # Ищем в обе стороны на случай кто кому первым отправлял.
+        messages.success(request, f'{other.username} удалён из друзей.')
+        return redirect('profile', username=username)

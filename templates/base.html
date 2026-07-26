@@ -14,6 +14,107 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3.0">
 
     {% block extra_css %}{% endblock %}
+
+    <style>
+        /* =====================================================
+           СТИЛИ ДЛЯ ВСПЛЫВАЮЩИХ УВЕДОМЛЕНИЙ (TOAST)
+           Toast — небольшое всплывающее окно в углу экрана,
+           которое появляется когда кто-то пишет вам сообщение.
+           ===================================================== */
+
+        /* Контейнер — прикрепляет все тосты к правому нижнему углу */
+        #notification-container {
+            position: fixed;        /* Фиксированное — не двигается при прокрутке */
+            bottom: 1.5rem;         /* Отступ снизу */
+            right: 1.5rem;          /* Отступ справа */
+            z-index: 9999;          /* Всегда поверх всего содержимого страницы */
+            display: flex;
+            flex-direction: column; /* Тосты складываются вертикально */
+            gap: .75rem;            /* Расстояние между несколькими тостами */
+            max-width: 360px;       /* Максимальная ширина */
+        }
+
+        /* Одно уведомление */
+        .msg-toast {
+            display: flex;
+            align-items: center;
+            gap: .85rem;
+            padding: .9rem 1.1rem;
+            background: #111;       /* Тёмный фон */
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.65);
+            cursor: pointer;
+            /* Анимация: появляется снизу вверх */
+            animation: toastSlideIn .35s ease;
+            transition: opacity .3s ease, transform .3s ease;
+        }
+
+        /* Когда тост исчезает — плавно уходит вниз и становится прозрачным */
+        .msg-toast.hiding {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Аватар отправителя внутри тоста */
+        .msg-toast img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;     /* Круглый аватар */
+            object-fit: cover;
+            flex-shrink: 0;         /* Не сжимается при переполнении */
+            border: 1px solid rgba(255,255,255,.15);
+        }
+
+        /* Имя отправителя */
+        .msg-toast .toast-sender {
+            font-size: .82rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* Текст сообщения — обрезается многоточием если слишком длинный */
+        .msg-toast .toast-text {
+            font-size: .78rem;
+            color: rgba(255,255,255,.55);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 220px;
+        }
+
+        /* Маленькая иконка в правом верхнем углу тоста */
+        .msg-toast .toast-icon {
+            font-size: 1.15rem;
+            color: rgba(255,255,255,.7);
+            flex-shrink: 0;
+        }
+
+        /* Ключевые кадры анимации: тост едет снизу */
+        @keyframes toastSlideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Красная точка-индикатор на кнопке "Сообщения" в навбаре */
+        .nav-msg-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f87171;    /* Красный цвет */
+            position: absolute;
+            top: 4px;
+            right: -4px;
+            animation: pulse 1.5s infinite;  /* Пульсация для привлечения внимания */
+        }
+
+        /* Анимация пульсации красной точки */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1);   opacity: 1; }
+            50%       { transform: scale(1.3); opacity: .7; }
+        }
+    </style>
 </head>
 <body>
 
@@ -77,9 +178,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if 'chat' in request.resolver_match.url_name %}active{% endif %}"
-                           href="{% url 'chat_list' %}">
+                        <!-- id="nav-messages-link" нужен JS-у чтобы добавить красную точку -->
+                        <a class="nav-link position-relative {% if 'chat' in request.resolver_match.url_name %}active{% endif %}"
+                           href="{% url 'chat_list' %}" id="nav-messages-link">
                             <i class="bi bi-chat-text-fill"></i> Сообщения
+                            <!-- Красная точка появится здесь когда придёт новое сообщение -->
                         </a>
                     </li>
                     <li class="nav-item me-lg-2">
@@ -156,7 +259,144 @@
     </div>
 </footer>
 
+<!-- =====================================================
+     КОНТЕЙНЕР ДЛЯ ВСПЛЫВАЮЩИХ УВЕДОМЛЕНИЙ
+     Все тосты будут добавляться сюда через JavaScript
+     ===================================================== -->
+<div id="notification-container"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+{% if user.is_authenticated %}
+<script>
+/* =====================================================================
+   СИСТЕМА УВЕДОМЛЕНИЙ О НОВЫХ СООБЩЕНИЯХ В РЕАЛЬНОМ ВРЕМЕНИ
+   Этот скрипт работает НА КАЖДОЙ СТРАНИЦЕ сайта (он в base.html).
+
+   КАК ЭТО РАБОТАЕТ (коротко):
+   1. Браузер открывает постоянное соединение с сервером (WebSocket).
+   2. Когда кто-то пишет вам сообщение — сервер через этот канал
+      мгновенно присылает браузеру данные о новом сообщении.
+   3. JavaScript получает данные и показывает красивый тост в углу экрана.
+   4. Нажав на тост — переходите прямо в нужный чат.
+   ===================================================================== */
+
+(function () {
+
+    // -----------------------------------------------------------------
+    // ШАГ 1. ОТКРЫВАЕМ WEBSOCKET-СОЕДИНЕНИЕ С СЕРВЕРОМ
+    // ws:// — протокол, похожий на http://, но для постоянных соединений
+    // wss:// — защищённая версия (как https://) для продакшена
+    // -----------------------------------------------------------------
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const socketUrl = `${protocol}://${window.location.host}/ws/notifications/`;
+
+    // Создаём объект WebSocket — браузер сразу пытается подключиться
+    const socket = new WebSocket(socketUrl);
+
+    // -----------------------------------------------------------------
+    // ШАГ 2. ОБРАБАТЫВАЕМ ВХОДЯЩИЕ ДАННЫЕ ОТ СЕРВЕРА
+    // socket.onmessage срабатывает КАЖДЫЙ РАЗ когда сервер что-то прислал
+    // -----------------------------------------------------------------
+    socket.onmessage = function (event) {
+        // event.data — это строка JSON от сервера, превращаем её в объект
+        const data = JSON.parse(event.data);
+
+        // Показываем всплывающий тост с данными о новом сообщении
+        showToast(data);
+
+        // Добавляем красную мигающую точку на кнопку "Сообщения" в навбаре
+        addNavBadge();
+    };
+
+    // -----------------------------------------------------------------
+    // ШАГ 3. ФУНКЦИЯ СОЗДАНИЯ ВСПЛЫВАЮЩЕГО ТОСТА
+    // Принимает объект data с полями: sender_username, sender_avatar,
+    // message, room_id, created_at
+    // -----------------------------------------------------------------
+    function showToast(data) {
+        // Находим контейнер, куда будем добавлять тосты
+        const container = document.getElementById('notification-container');
+
+        // Создаём новый HTML-элемент <div> для одного тоста
+        const toast = document.createElement('div');
+        toast.className = 'msg-toast';
+
+        // Заполняем тост HTML-контентом
+        toast.innerHTML = `
+            <img src="${data.sender_avatar}" alt="${data.sender_username}">
+            <div style="flex: 1; min-width: 0;">
+                <div class="toast-sender">${data.sender_username}</div>
+                <div class="toast-text">${data.message}</div>
+            </div>
+            <i class="bi bi-chat-right-text-fill toast-icon"></i>
+        `;
+
+        // По клику на тост — переходим в нужный чат
+        toast.addEventListener('click', function () {
+            window.location.href = `/chats/${data.room_id}/`;
+        });
+
+        // Добавляем тост в контейнер (появится с анимацией из CSS)
+        container.appendChild(toast);
+
+        // -----------------------------------------------------------------
+        // ШАГ 4. АВТОМАТИЧЕСКОЕ СКРЫТИЕ ТОСТА ЧЕРЕЗ 5 СЕКУНД
+        // setTimeout(функция, миллисекунды) — запускает функцию через delay
+        // -----------------------------------------------------------------
+        setTimeout(function () {
+            // Добавляем CSS-класс 'hiding' → тост плавно исчезает (CSS-анимация)
+            toast.classList.add('hiding');
+
+            // Ждём ещё 300 мс (время CSS-анимации) и затем удаляем из DOM
+            setTimeout(function () {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        }, 5000); // 5000 миллисекунд = 5 секунд
+    }
+
+    // -----------------------------------------------------------------
+    // ШАГ 5. ДОБАВЛЯЕМ КРАСНУЮ ТОЧКУ НА КНОПКУ "СООБЩЕНИЯ" В НАВБАРЕ
+    // Показывает пользователю что есть непрочитанные сообщения
+    // -----------------------------------------------------------------
+    function addNavBadge() {
+        const link = document.getElementById('nav-messages-link');
+        if (!link) return; // Если элемент не найден — ничего не делаем
+
+        // Проверяем — не добавили ли мы точку уже раньше
+        if (!link.querySelector('.nav-msg-badge')) {
+            const badge = document.createElement('span');
+            badge.className = 'nav-msg-badge';
+            link.appendChild(badge); // Вставляем точку внутрь ссылки
+        }
+    }
+
+    // -----------------------------------------------------------------
+    // ШАГ 6. УБИРАЕМ КРАСНУЮ ТОЧКУ КОГДА ПОЛЬЗОВАТЕЛЬ ОТКРЫЛ ЧАТЫ
+    // -----------------------------------------------------------------
+    const messagesLink = document.getElementById('nav-messages-link');
+    if (messagesLink) {
+        messagesLink.addEventListener('click', function () {
+            // При переходе в "Сообщения" убираем красную точку
+            const badge = this.querySelector('.nav-msg-badge');
+            if (badge) badge.remove();
+        });
+    }
+
+    // -----------------------------------------------------------------
+    // ШАГ 7. ОБРАБОТКА ОШИБОК ПОДКЛЮЧЕНИЯ
+    // Если сервер недоступен — тихо пишем в консоль, не ломаем сайт
+    // -----------------------------------------------------------------
+    socket.onerror = function (e) {
+        console.warn('[ByteLink] Уведомления недоступны:', e);
+    };
+
+})(); // () в конце — сразу вызываем функцию (IIFE паттерн)
+</script>
+{% endif %}
+
 {% block extra_js %}{% endblock %}
 </body>
 </html>

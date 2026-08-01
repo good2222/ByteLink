@@ -519,3 +519,94 @@ input[type="file"] { display: none !important; }
   .profile-cover { height: 160px; }
   main { padding: 1rem 0 3rem; }
 }
+
+/* --------------------------------------------------------------------------
+   22. Real-time Push Toast Notifications & Chat UI
+   -------------------------------------------------------------------------- */
+#notification-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  max-width: 360px;
+}
+
+.msg-toast {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+  padding: .9rem 1.1rem;
+  background: #111;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.65);
+  cursor: pointer;
+  animation: toastSlideIn .35s ease;
+  transition: opacity .3s ease, transform .3s ease;
+}
+
+.msg-toast.hiding {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.msg-toast img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,.15);
+}
+
+.msg-toast .toast-sender {
+  font-size: .82rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.msg-toast .toast-text {
+  font-size: .78rem;
+  color: rgba(255,255,255,.55);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.msg-toast .toast-icon {
+  font-size: 1.15rem;
+  color: rgba(255,255,255,.7);
+  flex-shrink: 0;
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.nav-msg-badge {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f87171;
+  position: absolute;
+  top: 4px;
+  right: -4px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%       { transform: scale(1.3); opacity: .7; }
+}
+
+.active-chat {
+  background: rgba(255,255,255,.10) !important;
+  border-color: var(--border-glow) !important;
+}
+

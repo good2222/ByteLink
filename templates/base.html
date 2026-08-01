@@ -234,9 +234,15 @@
             <i class="bi bi-chat-right-text-fill toast-icon"></i>
         `;
 
-        // По клику на тост — переходим в нужный чат
+        // По клику на тост — переходим в чат, пост или уведомления
         toast.addEventListener('click', function () {
-            window.location.href = `/chats/${data.room_id}/`;
+            if (data.room_id) {
+                window.location.href = `/chats/${data.room_id}/`;
+            } else if (data.post_id) {
+                window.location.href = `/#post-${data.post_id}`;
+            } else {
+                window.location.href = `/notifications/`;
+            }
         });
 
         // Добавляем тост в контейнер (появится с анимацией из CSS)

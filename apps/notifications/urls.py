@@ -1,8 +1,3 @@
-# =====================================================================
-# ФАЙЛ: apps/notifications/urls.py
-# URL-маршруты для приложения уведомлений.
-# =====================================================================
-
 from django.urls import path
 from .views import NotificationListView, MarkAllReadView
 

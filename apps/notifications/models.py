@@ -1,8 +1,3 @@
-# =====================================================================
-# ФАЙЛ: apps/notifications/models.py
-# Модель для хранения всех уведомлений пользователей в базе данных.
-# =====================================================================
-
 from django.db import models
 from django.conf import settings
 
@@ -18,30 +13,23 @@ NOTIFICATION_TYPES = (
 class Notification(models.Model):
     NOTIFICATION_TYPES = NOTIFICATION_TYPES
 
-    # Кому адресовано уведомление
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='notifications',
         verbose_name='Получатель'
     )
-
-    # Кто совершил действие
     sender = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='sent_notifications',
         verbose_name='Отправитель'
     )
-
-    # Тип уведомления
     notification_type = models.CharField(
         max_length=20,
         choices=NOTIFICATION_TYPES,
         verbose_name='Тип уведомления'
     )
-
-    # Ссылка на пост (если уведомление касается поста)
     post = models.ForeignKey(
         'posts.Post',
         on_delete=models.CASCADE,
@@ -50,8 +38,6 @@ class Notification(models.Model):
         related_name='notifications',
         verbose_name='Пост'
     )
-
-    # Ссылка на группу (если касается группы)
     group = models.ForeignKey(
         'groups.Group',
         on_delete=models.CASCADE,
@@ -60,11 +46,7 @@ class Notification(models.Model):
         related_name='notifications',
         verbose_name='Группа'
     )
-
-    # Прочитано ли уведомление
     is_read = models.BooleanField(default=False, verbose_name='Прочитано')
-
-    # Дата и время создания
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
 
     class Meta:
@@ -77,7 +59,6 @@ class Notification(models.Model):
 
     @property
     def get_icon(self):
-        """Возвращает Bootstrap-иконку в зависимости от типа уведомления."""
         icons = {
             'like': 'bi-heart-fill text-danger',
             'comment': 'bi-chat-dots-fill text-info',
@@ -89,7 +70,6 @@ class Notification(models.Model):
 
     @property
     def get_text(self):
-        """Возвращает понятный текст уведомления."""
         if self.notification_type == 'like':
             return 'оценил(а) вашу публикацию.'
         elif self.notification_type == 'comment':

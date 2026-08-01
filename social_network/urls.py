@@ -11,6 +11,7 @@ urlpatterns = [
     path('', include('apps.posts.urls')),
     path('', include('apps.groups.urls')),
     path('', include('apps.chats.urls')),
+    path('', include('apps.notifications.urls')),
 ]
 
 if settings.DEBUG:

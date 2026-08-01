@@ -181,6 +181,12 @@ class SendFriendRequestView(LoginRequiredMixin, View):
                 messages.info(request, 'Заявка уже существует.')
         else:
             FriendRequest.objects.create(from_user=request.user, to_user=to_user)
+            from apps.notifications.models import Notification
+            Notification.objects.create(
+                recipient=to_user,
+                sender=request.user,
+                notification_type='friend_request'
+            )
             messages.success(request, f'Заявка отправлена пользователю {to_user.username}.')
 
         return redirect('profile', username=username)
@@ -190,6 +196,12 @@ class AcceptFriendRequestView(LoginRequiredMixin, View):
         freq = get_object_or_404(FriendRequest, pk=pk, to_user=request.user, status='pending')
         freq.status = 'accepted'
         freq.save()
+        from apps.notifications.models import Notification
+        Notification.objects.create(
+            recipient=freq.from_user,
+            sender=request.user,
+            notification_type='friend_accept'
+        )
         messages.success(request, f'Вы приняли заявку от {freq.from_user.username}.')
         return redirect(request.META.get('HTTP_REFERER', 'friend_requests'))
 

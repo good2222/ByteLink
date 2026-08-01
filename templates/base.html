@@ -85,7 +85,10 @@
                         </a>
                     </li>
                     <li class="nav-item me-lg-2">
-                        <a class="nav-link" href="#"><i class="bi bi-bell-fill"></i> Уведомления</a>
+                        <a class="nav-link {% if 'notification' in request.resolver_match.url_name %}active{% endif %}"
+                           href="{% url 'notification_list' %}">
+                            <i class="bi bi-bell-fill"></i> Уведомления
+                        </a>
                     </li>
 
                     <!-- Profile dropdown -->

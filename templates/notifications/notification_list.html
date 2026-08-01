@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Уведомления — ByteLink{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+    <div class="col-lg-8 col-12">
+
+        <!-- Header Card -->
+        <div class="glass p-4 rounded-4 mb-4 d-flex align-items-center justify-content-between fade-up">
+            <div class="d-flex align-items-center gap-3">
+                <div class="brand-icon-wrapper" style="width:48px; height:48px; background:rgba(255,255,255,.08); border-radius:14px; display:flex; align-items:center; justify-content:center;">
+                    <i class="bi bi-bell-fill fs-4 text-white"></i>
+                </div>
+                <div>
+                    <h4 class="mb-0 fw-bold" style="font-family:var(--font-alt);">Уведомления</h4>
+                    <p style="font-size:.82rem; color:var(--text-3); margin:0;">Все действия и события вашей страницы</p>
+                </div>
+            </div>
+
+            {% if notifications %}
+            <form action="{% url 'mark_all_read' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn-ghost btn btn-sm">
+                    <i class="bi bi-check2-all me-1"></i> Прочитано
+                </button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- Notifications List -->
+        <div class="d-flex flex-column gap-2 fade-up fade-up-delay-1">
+            {% for n in notifications %}
+            <div class="glass p-3 rounded-3 d-flex align-items-center justify-content-between gap-3
+                        {% if not n.is_read %}glass-active{% endif %}"
+                 style="transition: all .2s;">
+                <div class="d-flex align-items-center gap-3" style="min-width:0;">
+                    <!-- Sender Avatar -->
+                    <a href="{% url 'profile' username=n.sender.username %}">
+                        <img src="{{ n.sender.get_avatar_url }}" alt="avatar"
+                             style="width:46px; height:46px; border-radius:50%; object-fit:cover; border:2px solid var(--border); flex-shrink:0;">
+                    </a>
+
+                    <!-- Notification Content -->
+                    <div style="min-width:0;">
+                        <div style="font-size:.88rem; color:var(--text-1); line-height:1.3;">
+                            <a href="{% url 'profile' username=n.sender.username %}" class="fw-bold text-white text-decoration-none me-1">
+                                {{ n.sender.first_name|default:n.sender.username }}
+                            </a>
+                            <span style="color:var(--text-2);">{{ n.get_text }}</span>
+                        </div>
+                        <span style="font-size:.74rem; color:var(--text-3);">{{ n.created_at|date:"d E в H:i" }}</span>
+                    </div>
+                </div>
+
+                <!-- Type Icon & Quick Link -->
+                <div class="d-flex align-items-center gap-3 flex-shrink-0">
+                    <i class="bi {{ n.get_icon }} fs-5"></i>
+
+                    {% if n.post %}
+                        <a href="{% url 'home' %}#post-{{ n.post.id }}" class="btn-ghost btn btn-sm py-1 px-2" style="font-size:.78rem;">
+                            Пост <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    {% elif n.notification_type == 'friend_request' %}
+                        <a href="{% url 'friend_requests' %}" class="btn-primary-app btn btn-sm py-1 px-2" style="font-size:.78rem;">
+                            Ответ <i class="bi bi-person-check ms-1"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <!-- Empty State -->
+            <div class="glass p-5 text-center rounded-4">
+                <i class="bi bi-bell-slash fs-1 text-muted d-block mb-3"></i>
+                <h5 class="fw-bold text-white">Уведомлений пока нет</h5>
+                <p style="font-size:.85rem; color:var(--text-3); margin:0;">Здесь будут появляться отметки «Нравится», комментарии и заявки в друзья.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination if needed -->
+        {% if is_paginated %}
+        <div class="d-flex justify-content-center mt-4">
+            <nav>
+                <ul class="pagination pagination-sm">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a></li>
+                    {% endif %}
+                    <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+                    {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Далее</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

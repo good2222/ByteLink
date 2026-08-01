@@ -1,3 +1,58 @@
-from django.shortcuts import render
+# =====================================================================
+# ФАЙЛ: apps/notifications/views.py
+# Представления для просмотра и управления уведомлениями.
+# =====================================================================
 
-# Create your views here.
+from django.shortcuts import render, redirect
+from django.views.generic import ListView
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+
+from .models import Notification
+
+
+class NotificationListView(LoginRequiredMixin, ListView):
+    """
+    Страница всех уведомлений текущего пользователя.
+    При открытии страницы все прочитанные/непрочитанные уведомления
+    автоматически отображаются, а нечитанные помечаются как прочитанные.
+    """
+    model = Notification
+    template_name = 'notifications/notification_list.html'
+    context_object_name = 'notifications'
+    paginate_by = 20
+
+    def get_queryset(self):
+        # Только уведомления для текущего пользователя
+        return Notification.objects.filter(recipient=self.request.user).select_related(
+            'sender', 'post', 'group'
+        ).order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Считаем количество непрочитанных до изменения статуса
+        context['unread_count'] = Notification.objects.filter(
+            recipient=self.request.user, is_read=False
+        ).count()
+
+        # Помечаем все непрочитанные уведомления пользователя как прочитанные
+        Notification.objects.filter(
+            recipient=self.request.user, is_read=False
+        ).update(is_read=True)
+
+        return context
+
+
+class MarkAllReadView(LoginRequiredMixin, View):
+    """
+    AJAX / POST запрос для отметки всех уведомлений как прочитанные.
+    """
+    def post(self, request):
+        Notification.objects.filter(
+            recipient=request.user, is_read=False
+        ).update(is_read=True)
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'ok'})
+        return redirect('notification_list')

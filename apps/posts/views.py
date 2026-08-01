@@ -3,8 +3,28 @@ from django.views.generic import CreateView, DeleteView, View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.http import JsonResponse
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 from .models import Post, Comment, Like
 from .forms import PostForm, CommentForm
+from apps.notifications.models import Notification
+
+
+def send_notification_ws(recipient, sender, message, post=None, notif_type='like'):
+    """Отправляет push-уведомление через WebSockets в реальном времени."""
+    channel_layer = get_channel_layer()
+    if channel_layer:
+        async_to_sync(channel_layer.group_send)(
+            f'user_{recipient.id}',
+            {
+                'type': 'new_message_notification',
+                'message': message,
+                'sender_username': sender.username,
+                'sender_avatar': sender.get_avatar_url,
+                'post_id': post.id if post else 0
+            }
+        )
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -42,8 +62,28 @@ class LikeToggleView(LoginRequiredMixin, View):
         if not created:
             like.delete()
             liked = False
+            Notification.objects.filter(
+                recipient=post.author,
+                sender=request.user,
+                notification_type='like',
+                post=post
+            ).delete()
         else:
             liked = True
+            if post.author != request.user:
+                Notification.objects.get_or_create(
+                    recipient=post.author,
+                    sender=request.user,
+                    notification_type='like',
+                    post=post
+                )
+                send_notification_ws(
+                    recipient=post.author,
+                    sender=request.user,
+                    message=f'{request.user.username} поставил(а) лайк вашему посту.',
+                    post=post,
+                    notif_type='like'
+                )
 
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({
@@ -62,7 +102,24 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         post = get_object_or_404(Post, pk=self.kwargs['pk'])
         form.instance.post = post
         form.instance.author = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        if post.author != self.request.user:
+            Notification.objects.create(
+                recipient=post.author,
+                sender=self.request.user,
+                notification_type='comment',
+                post=post
+            )
+            send_notification_ws(
+                recipient=post.author,
+                sender=self.request.user,
+                message=f'{self.request.user.username} оставил(а) комментарий к вашему посту.',
+                post=post,
+                notif_type='comment'
+            )
+
+        return response
 
     def get_success_url(self):
         return self.request.META.get('HTTP_REFERER', reverse_lazy('home'))

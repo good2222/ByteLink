@@ -16,6 +16,9 @@ from apps.posts.forms import PostForm, CommentForm
 
 class SetLanguageView(View):
     """Переключение языка интерфейса. Сохраняет выбор в сессии."""
+    def get(self, request):
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
     def post(self, request):
         lang = request.POST.get('language', 'ru')
         if lang not in ('ru', 'uk'):

@@ -6,6 +6,7 @@ from django.contrib.auth import login
 from django.db.models import Count, Q
 from django.contrib import messages
 from django.utils import translation
+from django.core.paginator import Paginator
 
 from .models import CustomUser, FriendRequest
 from .forms import CustomUserCreationForm, UserProfileForm
@@ -24,8 +25,6 @@ class SetLanguageView(View):
         response = redirect(request.META.get('HTTP_REFERER', '/'))
         response.set_cookie('django_language', lang)
         return response
-
-
 
 
 class RegisterView(CreateView):
@@ -55,7 +54,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
         friends = self.request.user.get_friends()
 
-        posts = (
+        posts_qs = (
             Post.objects
             .select_related('author')
             .prefetch_related('likes', 'comments__author')
@@ -63,9 +62,17 @@ class HomeView(LoginRequiredMixin, TemplateView):
             .annotate(like_count=Count('likes'))
             .order_by('-like_count', '-created_at')
         )
-        for post in posts:
+
+        paginator = Paginator(posts_qs, 10)  # 10 постов на страницу
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        for post in page_obj:
             post.is_liked = post.is_liked_by(self.request.user)
-        context['feed_posts'] = posts
+
+        context['feed_posts'] = page_obj
+        context['page_obj'] = page_obj
+        context['is_paginated'] = page_obj.has_other_pages()
         return context
 
 
@@ -81,18 +88,26 @@ class ProfileView(LoginRequiredMixin, DetailView):
         context['post_form'] = PostForm()
         context['comment_form'] = CommentForm()
 
-        posts = (
+        posts_qs = (
             self.object.posts
             .select_related('author')
             .prefetch_related('likes', 'comments__author')
             .annotate(like_count=Count('likes'))
             .order_by('-like_count', '-created_at')
         )
-        for post in posts:
+
+        paginator = Paginator(posts_qs, 10)  # 10 постов на страницу
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        for post in page_obj:
             post.is_liked = post.is_liked_by(self.request.user)
-        context['user_posts'] = posts
+
+        context['user_posts'] = page_obj
+        context['page_obj'] = page_obj
+        context['is_paginated'] = page_obj.has_other_pages()
         context['is_own_profile'] = self.object == self.request.user
-        context['friends'] = self.object.get_friends()[:6]  
+        context['friends'] = self.object.get_friends()[:6]
         context['friends_count'] = self.object.get_friends().count()
 
         if not context['is_own_profile']:

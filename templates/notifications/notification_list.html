@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Уведомления — ByteLink{% endblock %}
+{% block title %}{{ t.notifications }} — ByteLink{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-3">
@@ -12,8 +12,7 @@
                     <i class="bi bi-bell-fill fs-4 text-white"></i>
                 </div>
                 <div>
-                    <h4 class="mb-0 fw-bold" style="font-family:var(--font-alt);">Уведомления</h4>
-                    <p style="font-size:.82rem; color:var(--text-3); margin:0;">Все действия и события вашей страницы</p>
+                    <h4 class="mb-0 fw-bold" style="font-family:var(--font-alt);">{{ t.notifications }}</h4>
                 </div>
             </div>
 
@@ -21,7 +20,7 @@
             <form action="{% url 'mark_all_read' %}" method="post">
                 {% csrf_token %}
                 <button type="submit" class="btn-ghost btn btn-sm">
-                    <i class="bi bi-check2-all me-1"></i> Прочитано
+                    <i class="bi bi-check2-all me-1"></i> {{ t.mark_read }}
                 </button>
             </form>
             {% endif %}
@@ -48,7 +47,7 @@
                             </a>
                             <span style="color:var(--text-2);">{{ n.get_text }}</span>
                         </div>
-                        <span style="font-size:.74rem; color:var(--text-3);">{{ n.created_at|date:"d E в H:i" }}</span>
+                        <span style="font-size:.74rem; color:var(--text-3);">{{ n.created_at|date:"d E H:i" }}</span>
                     </div>
                 </div>
 
@@ -58,11 +57,11 @@
 
                     {% if n.post %}
                         <a href="{% url 'home' %}#post-{{ n.post.id }}" class="btn-ghost btn btn-sm py-1 px-2" style="font-size:.78rem;">
-                            Пост <i class="bi bi-arrow-right ms-1"></i>
+                            {{ t.posts }} <i class="bi bi-arrow-right ms-1"></i>
                         </a>
                     {% elif n.notification_type == 'friend_request' %}
                         <a href="{% url 'friend_requests' %}" class="btn-primary-app btn btn-sm py-1 px-2" style="font-size:.78rem;">
-                            Ответ <i class="bi bi-person-check ms-1"></i>
+                            {{ t.accept }} <i class="bi bi-person-check ms-1"></i>
                         </a>
                     {% endif %}
                 </div>
@@ -71,8 +70,7 @@
             <!-- Empty State -->
             <div class="glass p-5 text-center rounded-4">
                 <i class="bi bi-bell-slash fs-1 text-muted d-block mb-3"></i>
-                <h5 class="fw-bold text-white">Уведомлений пока нет</h5>
-                <p style="font-size:.85rem; color:var(--text-3); margin:0;">Здесь будут появляться отметки «Нравится», комментарии и заявки в друзья.</p>
+                <h5 class="fw-bold text-white">{{ t.no_notifications }}</h5>
             </div>
             {% endfor %}
         </div>

@@ -25,7 +25,7 @@
                 <div class="d-flex justify-content-around">
                     <div>
                         <div class="profile-stat-val">{{ user.posts.count }}</div>
-                        <div class="profile-stat-lbl">Посты</div>
+                        <div class="profile-stat-lbl">{{ t.posts }}</div>
                     </div>
                     <div style="width: 1px; background: var(--border);"></div>
                     <div>
@@ -71,12 +71,12 @@
                      style="border-color: var(--border) !important;">
                     <div>
                         <label for="id_image" class="btn-ghost btn btn-sm" style="cursor: pointer;">
-                            <i class="bi bi-image" style="color: var(--accent-2);"></i> Фото
+                            <i class="bi bi-image" style="color: var(--accent-2);"></i> {{ t.attach_photo }}
                         </label>
                         {{ post_form.image }}
                     </div>
                     <button type="submit" class="btn-primary-app">
-                        <i class="bi bi-send-fill"></i> Опубликовать
+                        <i class="bi bi-send-fill"></i> {{ t.publish }}
                     </button>
                 </div>
             </form>

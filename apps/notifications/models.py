@@ -70,14 +70,23 @@ class Notification(models.Model):
 
     @property
     def get_text(self):
-        if self.notification_type == 'like':
-            return 'оценил(а) вашу публикацию.'
-        elif self.notification_type == 'comment':
-            return 'оставил(а) комментарий к вашей публикации.'
-        elif self.notification_type == 'friend_request':
-            return 'отправил(а) вам заявку в друзья.'
-        elif self.notification_type == 'friend_accept':
-            return 'принял(а) вашу заявку в друзья.'
-        elif self.notification_type == 'group_invite':
-            return f'приглашает вас в группу "{self.group.title if self.group else ""}".'
-        return 'новое уведомление.'
+        from django.utils.translation import get_language
+        lang = get_language() or 'uk'
+        if lang == 'ru':
+            texts = {
+                'like': 'оценил(а) вашу публикацию.',
+                'comment': 'оставил(а) комментарий к вашей публикации.',
+                'friend_request': 'отправил(а) вам заявку в друзья.',
+                'friend_accept': 'принял(а) вашу заявку в друзья.',
+                'group_invite': f'приглашает вас в группу "{self.group.title if self.group else ""}".',
+            }
+            return texts.get(self.notification_type, 'новое уведомление.')
+        else:
+            texts = {
+                'like': 'вподобав(ла) вашу публікацію.',
+                'comment': 'залишив(ла) коментар до вашої публікації.',
+                'friend_request': 'надіслав(ла) вам заявку до друзів.',
+                'friend_accept': 'прийняв(ла) вашу заявку до друзів.',
+                'group_invite': f'запрошує вас до групи "{self.group.title if self.group else ""}".',
+            }
+            return texts.get(self.notification_type, 'нове сповіщення.')

@@ -20,9 +20,9 @@ class SetLanguageView(View):
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
     def post(self, request):
-        lang = request.POST.get('language', 'ru')
+        lang = request.POST.get('language', 'uk')
         if lang not in ('ru', 'uk'):
-            lang = 'ru'
+            lang = 'uk'
         translation.activate(lang)
         request.session['django_language'] = lang
         response = redirect(request.META.get('HTTP_REFERER', '/'))

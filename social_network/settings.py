@@ -53,6 +53,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # i18n language switcher middleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -73,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',  # i18n context processor
             ],
         },
     },
@@ -125,8 +127,13 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-LANGUAGE_CODE = 'ru'  # Set to Russian/Ukrainian as per user preferences, using Russian as default
+# Internationalization & Language Switcher (RU / UK)
+LANGUAGE_CODE = 'ru'
+LANGUAGES = [
+    ('ru', 'Русский'),
+    ('uk', 'Українська'),
+]
+LOCALE_PATHS = [BASE_DIR / 'locale']
 TIME_ZONE = 'Europe/Kiev'
 USE_I18N = True
 USE_TZ = True

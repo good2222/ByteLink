@@ -91,6 +91,21 @@
                         </a>
                     </li>
 
+                    <!-- Language Switcher (RU / UA) -->
+                    <li class="nav-item me-lg-3 d-flex align-items-center">
+                        <form action="{% url 'set_language' %}" method="post" class="m-0">
+                            {% csrf_token %}
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="submit" name="language" value="ru" 
+                                        class="btn btn-sm {% if request.session.django_language != 'uk' %}btn-light text-dark fw-bold{% else %}btn-outline-secondary text-white-50{% endif %}"
+                                        style="font-size: .72rem; padding: 2px 8px;">RU</button>
+                                <button type="submit" name="language" value="uk" 
+                                        class="btn btn-sm {% if request.session.django_language == 'uk' %}btn-light text-dark fw-bold{% else %}btn-outline-secondary text-white-50{% endif %}"
+                                        style="font-size: .72rem; padding: 2px 8px;">UA</button>
+                            </div>
+                        </form>
+                    </li>
+
                     <!-- Profile dropdown -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#"

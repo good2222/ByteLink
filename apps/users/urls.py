@@ -5,10 +5,11 @@ from .views import (
     SendFriendRequestView, AcceptFriendRequestView,
     DeclineFriendRequestView, RemoveFriendView,
     FriendsListView, FriendRequestsView,
-    UserSearchView,
+    UserSearchView, SetLanguageView,
 )
 
 urlpatterns = [
+    path('set-language/', SetLanguageView.as_view(), name='set_language'),
     # Авторизация
     path('register/', RegisterView.as_view(), name='register'),
     path('login/',    auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),

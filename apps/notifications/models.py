@@ -80,4 +80,4 @@ class Notification(models.Model):
             return 'принял(а) вашу заявку в друзья.'
         elif self.notification_type == 'group_invite':
             return f'приглашает вас в группу "{self.group.title if self.group else ""}".'
-        return 'новое уведомление.'
+        return 'новое уведомление.'

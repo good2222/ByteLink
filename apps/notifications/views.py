@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.views.generic import ListView
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -23,11 +23,9 @@ class NotificationListView(LoginRequiredMixin, ListView):
         context['unread_count'] = Notification.objects.filter(
             recipient=self.request.user, is_read=False
         ).count()
-
         Notification.objects.filter(
             recipient=self.request.user, is_read=False
         ).update(is_read=True)
-
         return context
 
 
@@ -36,7 +34,6 @@ class MarkAllReadView(LoginRequiredMixin, View):
         Notification.objects.filter(
             recipient=request.user, is_read=False
         ).update(is_read=True)
-
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'status': 'ok'})
         return redirect('notification_list')

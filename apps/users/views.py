@@ -5,11 +5,27 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login
 from django.db.models import Count, Q
 from django.contrib import messages
+from django.utils import translation
 
 from .models import CustomUser, FriendRequest
 from .forms import CustomUserCreationForm, UserProfileForm
 from apps.posts.models import Post
 from apps.posts.forms import PostForm, CommentForm
+
+
+class SetLanguageView(View):
+    """Переключение языка интерфейса. Сохраняет выбор в сессии."""
+    def post(self, request):
+        lang = request.POST.get('language', 'ru')
+        if lang not in ('ru', 'uk'):
+            lang = 'ru'
+        translation.activate(lang)
+        request.session['django_language'] = lang
+        response = redirect(request.META.get('HTTP_REFERER', '/'))
+        response.set_cookie('django_language', lang)
+        return response
+
+
 
 
 class RegisterView(CreateView):

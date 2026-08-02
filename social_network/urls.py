@@ -6,6 +6,7 @@ from apps.users.views import HomeView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('i18n/', include('django.conf.urls.i18n')),  # URL для переключения языка
     path('', HomeView.as_view(), name='home'),
     path('', include('apps.users.urls')),
     path('', include('apps.posts.urls')),

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Сообщения — ByteLink{% endblock %}
+{% block title %}{{ t.messages }} — ByteLink{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-2">
@@ -12,18 +12,11 @@
             <div class="col-md-4 col-12" style="border-right:1px solid var(--border);">
                 <div class="p-3" style="border-bottom:1px solid var(--border);">
                     <h5 style="font-family:var(--font-alt); margin:0;">
-                        <i class="bi bi-chat-text-fill me-2" style="color:var(--accent-2);"></i>Сообщения
+                        <i class="bi bi-chat-text-fill me-2" style="color:var(--accent-2);"></i>{{ t.messages }}
                     </h5>
                 </div>
                 <div class="p-2" style="max-height:480px; overflow-y:auto;">
                     {% if chat_rooms %}
-                        {% for room in chat_rooms %}
-                            {% with other=room|default:user %}
-                            {% with other_user=room.get_other_user|default:user %}
-                            {% endwith %}
-                            {% endwith %}
-                        {% endfor %}
-
                         {% for room in chat_rooms %}
                         {% with other_user=room.get_other_user|default:user %}
                         <a href="{% url 'chat_detail' pk=room.pk %}"
@@ -49,10 +42,10 @@
                                 {% if last %}
                                 <p style="font-size:.8rem; color:var(--text-2); margin:.2rem 0 0;
                                            overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                                    {% if last.sender == user %}Вы: {% endif %}{{ last.content }}
+                                    {{ last.content }}
                                 </p>
                                 {% else %}
-                                <p style="font-size:.78rem; color:var(--text-3); margin:.2rem 0 0; font-style:italic;">Начните переписку...</p>
+                                <p style="font-size:.78rem; color:var(--text-3); margin:.2rem 0 0; font-style:italic;">...</p>
                                 {% endif %}
                                 {% endwith %}
                             </div>
@@ -62,9 +55,9 @@
                     {% else %}
                     <div class="text-center p-4">
                         <i class="bi bi-chat-dots" style="font-size:2rem; color:var(--text-3);"></i>
-                        <p style="font-size:.85rem; color:var(--text-3); margin-top:.5rem;">У вас пока нет диалогов.</p>
+                        <p style="font-size:.85rem; color:var(--text-3); margin-top:.5rem;">{{ t.no_chats }}</p>
                         <a href="{% url 'my_friends' %}" class="btn-ghost btn btn-sm mt-2">
-                            Написать другу
+                            {{ t.write_message }}
                         </a>
                     </div>
                     {% endif %}
@@ -75,8 +68,8 @@
             <div class="col-md-8 col-12 d-none d-md-flex align-items-center justify-content-center">
                 <div class="empty-state text-center">
                     <div class="icon"><i class="bi bi-send"></i></div>
-                    <h5>Ваши сообщения</h5>
-                    <p>Выберите диалог слева или откройте профиль друга, чтобы начать переписку.</p>
+                    <h5>{{ t.messages }}</h5>
+                    <p>{{ t.start_chat }}</p>
                 </div>
             </div>
 

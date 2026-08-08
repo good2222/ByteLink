@@ -1,5 +1,7 @@
 from django import forms
+from django.utils.translation import get_language
 from .models import Post, Comment
+
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -9,7 +11,6 @@ class PostForm(forms.ModelForm):
             'content': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
-                'placeholder': 'Что у вас нового?',
                 'required': True
             }),
             'image': forms.FileInput(attrs={
@@ -18,6 +19,15 @@ class PostForm(forms.ModelForm):
             })
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        lang = get_language() or 'uk'
+        if lang == 'ru':
+            self.fields['content'].widget.attrs['placeholder'] = 'Что у вас нового?'
+        else:
+            self.fields['content'].widget.attrs['placeholder'] = 'Що у вас нового?'
+
+
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
@@ -25,7 +35,15 @@ class CommentForm(forms.ModelForm):
         widgets = {
             'text': forms.TextInput(attrs={
                 'class': 'form-control form-control-sm',
-                'placeholder': 'Напишите комментарий...',
                 'required': True
             })
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        lang = get_language() or 'uk'
+        if lang == 'ru':
+            self.fields['text'].widget.attrs['placeholder'] = 'Напишите комментарий...'
+        else:
+            self.fields['text'].widget.attrs['placeholder'] = 'Написати коментар...'
+

@@ -9,13 +9,11 @@ class GroupForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Название группы',
                 'required': True
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
-                'placeholder': 'Расскажите, о чём ваша группа...',
                 'required': True
             }),
             'avatar': forms.FileInput(attrs={
@@ -27,3 +25,15 @@ class GroupForm(forms.ModelForm):
                 'accept': 'image/*'
             })
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from django.utils.translation import get_language
+        lang = get_language() or 'uk'
+        if lang == 'ru':
+            self.fields['title'].widget.attrs['placeholder'] = 'Название группы'
+            self.fields['description'].widget.attrs['placeholder'] = 'Расскажите, о чём ваша группа...'
+        else:
+            self.fields['title'].widget.attrs['placeholder'] = 'Назва групи'
+            self.fields['description'].widget.attrs['placeholder'] = 'Розкажіть, про що ваша група...'
+

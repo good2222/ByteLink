@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Редактирование {{ group.title }} — ByteLink{% endblock %}
+{% block title %}{{ t.edit_group }} — ByteLink{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-3">
@@ -7,42 +7,42 @@
 
     <div class="glass p-4 fade-up">
         <h4 class="mb-4" style="font-family:var(--font-alt);">
-            <i class="bi bi-pencil-square me-2" style="color:var(--accent-2);"></i>Редактировать группу
+            <i class="bi bi-pencil-square me-2" style="color:var(--accent-2);"></i>{{ t.edit_group }}
         </h4>
 
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
             <div class="mb-3">
-                <label for="id_title" class="form-label">Название группы</label>
+                <label for="id_title" class="form-label">{{ t.group_title }}</label>
                 {{ form.title }}
             </div>
 
             <div class="mb-3">
-                <label for="id_description" class="form-label">Описание группы</label>
+                <label for="id_description" class="form-label">{{ t.group_description }}</label>
                 {{ form.description }}
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Изменить аватарку</label>
+                <label class="form-label">{{ t.avatar }}</label>
                 <label for="id_avatar" class="btn-ghost btn w-100 justify-content-center" style="cursor:pointer;">
-                    <i class="bi bi-image me-1"></i> Выбрать аватар
+                    <i class="bi bi-image me-1"></i> {{ t.attach_photo }}
                 </label>
                 {{ form.avatar }}
             </div>
 
             <div class="mb-4">
-                <label class="form-label">Изменить обложку</label>
+                <label class="form-label">{{ t.cover }}</label>
                 <label for="id_cover_image" class="btn-ghost btn w-100 justify-content-center" style="cursor:pointer;">
-                    <i class="bi bi-card-image me-1"></i> Выбрать обложку
+                    <i class="bi bi-card-image me-1"></i> {{ t.attach_photo }}
                 </label>
                 {{ form.cover_image }}
             </div>
 
             <div class="d-flex justify-content-between align-items-center pt-2" style="border-top:1px solid var(--border);">
-                <a href="{% url 'group_detail' pk=group.pk %}" class="btn-ghost btn">Назад</a>
+                <a href="{% url 'group_detail' pk=group.pk %}" class="btn-ghost btn">{{ t.back }}</a>
                 <button type="submit" class="btn-primary-app">
-                    <i class="bi bi-check-lg me-1"></i> Сохранить
+                    <i class="bi bi-check-lg me-1"></i> {{ t.save }}
                 </button>
             </div>
         </form>

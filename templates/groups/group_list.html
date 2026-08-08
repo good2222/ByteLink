@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Сообщества — ByteLink{% endblock %}
+{% block title %}{{ t.groups }} — ByteLink{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-2">
@@ -9,15 +9,12 @@
     <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-4 fade-up">
         <div>
             <h4 style="font-family:var(--font-alt); margin:0;">
-                <i class="bi bi-collection-fill me-2" style="color:var(--accent-2);"></i>Сообщества
+                <i class="bi bi-collection-fill me-2" style="color:var(--accent-2);"></i>{{ t.groups }}
             </h4>
-            <p style="color:var(--text-3); font-size:.85rem; margin:.2rem 0 0;">
-                Находите интересные группы или создавайте свои
-            </p>
         </div>
         {% if user.is_authenticated %}
         <a href="{% url 'group_create' %}" class="btn-primary-app flex-shrink-0" style="display:inline-flex;">
-            <i class="bi bi-plus-lg me-1"></i> Создать группу
+            <i class="bi bi-plus-lg me-1"></i> {{ t.create_group }}
         </a>
         {% endif %}
     </div>
@@ -25,10 +22,10 @@
     <!-- Search form -->
     <div class="glass p-3 mb-4 fade-up">
         <form action="{% url 'group_list' %}" method="get" class="d-flex gap-2">
-            <input type="text" name="q" class="form-control" placeholder="Поиск по названию или описанию группы..."
+            <input type="text" name="q" class="form-control" placeholder="{{ t.search_placeholder }}"
                    value="{{ query }}">
             <button type="submit" class="btn-primary-app flex-shrink-0">
-                <i class="bi bi-search me-1"></i> Найти
+                <i class="bi bi-search me-1"></i> {{ t.search }}
             </button>
         </form>
     </div>
@@ -37,7 +34,7 @@
     {% if my_groups and not query %}
     <div class="mb-4 fade-up">
         <h6 class="mb-3" style="color:var(--text-3); font-size:.8rem; text-transform:uppercase; letter-spacing:.08em;">
-            <i class="bi bi-star-fill me-1" style="color:var(--accent-2);"></i> Мои группы ({{ my_groups|length }})
+            <i class="bi bi-star-fill me-1" style="color:var(--accent-2);"></i> {{ t.no_groups }} ({{ my_groups|length }})
         </h6>
         <div class="row g-3">
             {% for g in my_groups %}
@@ -53,13 +50,13 @@
                                     {{ g.title }}
                                 </a>
                                 <span style="font-size:.75rem; color:var(--text-3);">
-                                    <i class="bi bi-people me-1"></i>{{ g.members_count }} участников
+                                    <i class="bi bi-people me-1"></i>{{ g.members_count }} {{ t.subscribers }}
                                 </span>
                             </div>
                         </div>
                     </div>
                     <a href="{% url 'group_detail' pk=g.pk %}" class="btn-ghost btn btn-sm w-100 mt-2 text-center" style="font-size:.8rem;">
-                        Открыть
+                        {{ t.groups }}
                     </a>
                 </div>
             </div>
@@ -70,7 +67,7 @@
 
     <!-- All Groups Grid -->
     <h6 class="mb-3 fade-up" style="color:var(--text-3); font-size:.8rem; text-transform:uppercase; letter-spacing:.08em;">
-        {% if query %}Результаты поиска ({{ groups|length }}){% else %}Все сообщества{% endif %}
+        {% if query %}{{ t.search_results }} ({{ groups|length }}){% else %}{{ t.all_groups }}{% endif %}
     </h6>
 
     {% if groups %}
@@ -96,7 +93,7 @@
                                     {{ g.title }}
                                 </a>
                                 <span style="font-size:.78rem; color:var(--text-3);">
-                                    <i class="bi bi-people me-1"></i>{{ g.members_count }} участников · создана {{ g.created_at|date:"d.m.Y" }}
+                                    <i class="bi bi-people me-1"></i>{{ g.members_count }} {{ t.subscribers }}
                                 </span>
                             </div>
                         </div>
@@ -110,7 +107,7 @@
 
                 <div class="p-3 pt-0 d-flex gap-2">
                     <a href="{% url 'group_detail' pk=g.pk %}" class="btn-ghost btn btn-sm flex-grow-1 text-center">
-                        Перейти в группу
+                        {{ t.groups }}
                     </a>
                 </div>
             </div>
@@ -121,11 +118,10 @@
     <div class="glass fade-up">
         <div class="empty-state">
             <div class="icon"><i class="bi bi-collection"></i></div>
-            <h5>Группы не найдены</h5>
-            <p>{% if query %}По запросу "{{ query }}" ничего не найдено.{% else %}Ещё не создано ни одного сообщества. Будьте первыми!{% endif %}</p>
+            <h5>{{ t.no_results }}</h5>
             {% if user.is_authenticated %}
             <a href="{% url 'group_create' %}" class="btn-primary-app mt-2" style="display:inline-flex;">
-                <i class="bi bi-plus-lg me-1"></i> Создать группу
+                <i class="bi bi-plus-lg me-1"></i> {{ t.create_group }}
             </a>
             {% endif %}
         </div>

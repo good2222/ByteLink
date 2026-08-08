@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Настройки профиля — ByteLink{% endblock %}
+{% block title %}{{ t.settings }} — ByteLink{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-2">
@@ -12,7 +12,7 @@
                      style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover;
                             border: 2px solid var(--accent); box-shadow: 0 0 16px rgba(124,92,252,.35);">
                 <div>
-                    <h4 style="font-family: var(--font-alt); margin: 0;">Настройки профиля</h4>
+                    <h4 style="font-family: var(--font-alt); margin: 0;">{{ t.settings }}</h4>
                     <p style="font-size: .82rem; color: var(--text-3); margin: 0;">@{{ user.username }}</p>
                 </div>
             </div>
@@ -25,69 +25,69 @@
                 <!-- Name row -->
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label for="id_first_name" class="form-label">Имя</label>
+                        <label for="id_first_name" class="form-label">{{ t.first_name }}</label>
                         {{ form.first_name }}
                     </div>
                     <div class="col-md-6">
-                        <label for="id_last_name" class="form-label">Фамилия</label>
+                        <label for="id_last_name" class="form-label">{{ t.last_name }}</label>
                         {{ form.last_name }}
                     </div>
                 </div>
 
                 <!-- Status -->
                 <div class="mb-3">
-                    <label for="id_status_message" class="form-label">Статус</label>
+                    <label for="id_status_message" class="form-label">{{ t.status }}</label>
                     {{ form.status_message }}
                 </div>
 
                 <!-- Bio -->
                 <div class="mb-3">
-                    <label for="id_bio" class="form-label">О себе</label>
+                    <label for="id_bio" class="form-label">{{ t.bio }}</label>
                     {{ form.bio }}
                 </div>
 
                 <!-- Location + birth date -->
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label for="id_location" class="form-label">Город / Страна</label>
+                        <label for="id_location" class="form-label">{{ t.location }}</label>
                         {{ form.location }}
                     </div>
                     <div class="col-md-6">
-                        <label for="id_birth_date" class="form-label">Дата рождения</label>
+                        <label for="id_birth_date" class="form-label">{{ t.birth_date }}</label>
                         {{ form.birth_date }}
                     </div>
                 </div>
 
                 <!-- Website -->
                 <div class="mb-4">
-                    <label for="id_website" class="form-label">Веб-сайт</label>
+                    <label for="id_website" class="form-label">{{ t.website }}</label>
                     {{ form.website }}
                 </div>
 
                 <!-- Avatar + cover -->
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
-                        <label class="form-label">Аватар</label>
+                        <label class="form-label">{{ t.avatar }}</label>
                         <div class="d-flex align-items-center gap-3">
                             <img src="{{ user.get_avatar_url }}" alt="avatar preview"
                                  style="width: 48px; height: 48px; border-radius: 50%;
                                         object-fit: cover; border: 2px solid var(--border);">
                             <label for="id_avatar" class="btn-ghost btn btn-sm flex-grow-1"
                                    style="cursor: pointer; text-align: center;">
-                                <i class="bi bi-upload me-1"></i> Загрузить
+                                <i class="bi bi-upload me-1"></i> {{ t.attach_photo }}
                             </label>
                             <input type="file" name="avatar" id="id_avatar" accept="image/*">
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Обложка профиля</label>
+                        <label class="form-label">{{ t.cover }}</label>
                         <div class="d-flex align-items-center gap-3">
                             <img src="{{ user.get_cover_url }}" alt="cover preview"
                                  style="width: 72px; height: 48px; border-radius: 8px;
                                         object-fit: cover; border: 2px solid var(--border);">
                             <label for="id_cover_image" class="btn-ghost btn btn-sm flex-grow-1"
                                    style="cursor: pointer; text-align: center;">
-                                <i class="bi bi-upload me-1"></i> Загрузить
+                                <i class="bi bi-upload me-1"></i> {{ t.attach_photo }}
                             </label>
                             <input type="file" name="cover_image" id="id_cover_image" accept="image/*">
                         </div>
@@ -97,10 +97,10 @@
                 <!-- Actions -->
                 <div class="d-flex gap-3 justify-content-end">
                     <a href="{% url 'profile' username=user.username %}" class="btn-ghost btn">
-                        Отмена
+                        {{ t.cancel }}
                     </a>
                     <button type="submit" class="btn-primary-app">
-                        <i class="bi bi-check2 me-1"></i> Сохранить
+                        <i class="bi bi-check2 me-1"></i> {{ t.save }}
                     </button>
                 </div>
             </form>

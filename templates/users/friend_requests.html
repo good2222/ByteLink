@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Заявки в друзья — ByteLink{% endblock %}
+{% block title %}{{ t.incoming_requests }} — ByteLink{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-2">
@@ -7,16 +7,16 @@
 
     <!-- Header -->
     <h4 class="mb-3 fade-up" style="font-family:var(--font-alt);">
-        <i class="bi bi-people-fill me-2" style="color:var(--accent-2);"></i>Друзья
+        <i class="bi bi-people-fill me-2" style="color:var(--accent-2);"></i>{{ t.friends }}
     </h4>
 
     <!-- Navigation Tabs -->
     <div class="d-flex gap-2 mb-4 fade-up">
         <a href="{% url 'my_friends' %}" class="btn-ghost btn btn-sm">
-            <i class="bi bi-people-fill me-1"></i> Все друзья
+            <i class="bi bi-people-fill me-1"></i> {{ t.my_friends }}
         </a>
         <a href="{% url 'friend_requests' %}" class="btn-primary-app btn btn-sm position-relative">
-            <i class="bi bi-inbox-fill me-1"></i> Заявки в друзья
+            <i class="bi bi-inbox-fill me-1"></i> {{ t.incoming_requests }}
             {% with cnt=user.get_pending_received_count %}
             {% if cnt %}
             <span class="badge rounded-pill ms-1" style="background:#000; color:#fff; font-size:.65rem;">{{ cnt }}</span>
@@ -24,7 +24,7 @@
             {% endwith %}
         </a>
         <a href="{% url 'user_search' %}" class="btn-ghost btn btn-sm">
-            <i class="bi bi-search me-1"></i> Найти людей
+            <i class="bi bi-search me-1"></i> {{ t.search }}
         </a>
     </div>
 
@@ -44,7 +44,7 @@
                         {{ req.from_user.first_name|default:req.from_user.username }} {{ req.from_user.last_name }}
                     </a>
                     <p style="font-size:.78rem; color:var(--text-3); margin:0;">
-                        @{{ req.from_user.username }} · {{ req.created_at|timesince }} назад
+                        @{{ req.from_user.username }} · {{ req.created_at|timesince }}
                     </p>
                     {% if req.from_user.status_message %}
                     <p style="font-size:.8rem; color:var(--text-2); margin:.2rem 0 0; font-style:italic;">
@@ -57,7 +57,7 @@
                 <form action="{% url 'accept_friend_request' pk=req.pk %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="btn-primary-app btn btn-sm">
-                        <i class="bi bi-check-lg"></i> Принять
+                        <i class="bi bi-check-lg"></i> {{ t.accept }}
                     </button>
                 </form>
                 <form action="{% url 'decline_friend_request' pk=req.pk %}" method="post">
@@ -73,8 +73,7 @@
     <div class="glass fade-up">
         <div class="empty-state">
             <div class="icon"><i class="bi bi-inbox"></i></div>
-            <h5>Входящих заявок нет</h5>
-            <p>Когда кто-то отправит вам заявку в друзья, она появится здесь.</p>
+            <h5>{{ t.no_friend_requests }}</h5>
         </div>
     </div>
     {% endif %}

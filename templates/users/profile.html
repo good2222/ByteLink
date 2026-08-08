@@ -17,7 +17,7 @@
                 <div class="d-flex gap-2 flex-wrap mt-3 mt-md-0">
                     {% if is_own_profile %}
                         <a href="{% url 'profile_edit' %}" class="btn-ghost btn btn-sm">
-                            <i class="bi bi-pencil-square me-1"></i> Редактировать
+                            <i class="bi bi-pencil-square me-1"></i> {{ t.edit_profile }}
                         </a>
                     {% else %}
                         {% if are_friends %}
@@ -25,30 +25,30 @@
                             <form action="{% url 'remove_friend' username=profile_user.username %}" method="post" style="display:inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn-ghost btn btn-sm"
-                                        onclick="return confirm('Удалить из друзей?')">
-                                    <i class="bi bi-person-dash-fill me-1"></i> Удалить из друзей
+                                        onclick="return confirm('{{ t.remove_friend }}?')">
+                                    <i class="bi bi-person-dash-fill me-1"></i> {{ t.remove_friend }}
                                 </button>
                             </form>
                             <a href="{% url 'start_chat' username=profile_user.username %}" class="btn-primary-app btn btn-sm">
-                                <i class="bi bi-chat-text-fill me-1"></i> Написать
+                                <i class="bi bi-chat-text-fill me-1"></i> {{ t.write_message }}
                             </a>
                         {% elif request_pending_sent %}
                             <!-- Заявка отправлена — ждём -->
                             <button class="btn-ghost btn btn-sm" disabled>
-                                <i class="bi bi-hourglass-split me-1"></i> Заявка отправлена
+                                <i class="bi bi-hourglass-split me-1"></i> {{ t.request_sent }}
                             </button>
                         {% elif request_pending_received %}
                             <!-- Входящая заявка — принять / отклонить -->
                             <form action="{% url 'accept_friend_request' pk=friend_request.pk %}" method="post" style="display:inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn-primary-app btn btn-sm">
-                                    <i class="bi bi-check-lg me-1"></i> Принять заявку
+                                    <i class="bi bi-check-lg me-1"></i> {{ t.accept }}
                                 </button>
                             </form>
                             <form action="{% url 'decline_friend_request' pk=friend_request.pk %}" method="post" style="display:inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn-ghost btn btn-sm">
-                                    <i class="bi bi-x-lg me-1"></i> Отклонить
+                                    <i class="bi bi-x-lg me-1"></i> {{ t.decline }}
                                 </button>
                             </form>
                         {% else %}
@@ -56,7 +56,7 @@
                             <form action="{% url 'send_friend_request' username=profile_user.username %}" method="post" style="display:inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn-primary-app btn btn-sm">
-                                    <i class="bi bi-person-plus-fill me-1"></i> Добавить в друзья
+                                    <i class="bi bi-person-plus-fill me-1"></i> {{ t.add_friend }}
                                 </button>
                             </form>
                         {% endif %}
@@ -101,12 +101,12 @@
                 <div class="d-flex gap-4 mt-3">
                     <div>
                         <span class="profile-stat-val">{{ user_posts.count }}</span>
-                        <span class="profile-stat-lbl ms-1">Публикаций</span>
+                        <span class="profile-stat-lbl ms-1">{{ t.posts }}</span>
                     </div>
                     <a href="{% url 'friends_list' username=profile_user.username %}"
                        style="color:var(--text-1); text-decoration:none;">
                         <span class="profile-stat-val">{{ friends_count }}</span>
-                        <span class="profile-stat-lbl ms-1">Друзей</span>
+                        <span class="profile-stat-lbl ms-1">{{ t.friends }}</span>
                     </a>
                 </div>
             </div>
@@ -117,9 +117,9 @@
     {% if friends %}
     <div class="glass p-3 mb-4 fade-up fade-up-delay-1">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 style="font-family:var(--font-alt); margin:0;">Друзья <span style="color:var(--text-3);">{{ friends_count }}</span></h6>
+            <h6 style="font-family:var(--font-alt); margin:0;">{{ t.friends }} <span style="color:var(--text-3);">{{ friends_count }}</span></h6>
             <a href="{% url 'friends_list' username=profile_user.username %}"
-               style="font-size:.8rem; color:var(--accent-2);">Все друзья</a>
+               style="font-size:.8rem; color:var(--accent-2);">{{ t.my_friends }}</a>
         </div>
         <div class="d-flex flex-wrap gap-3">
             {% for friend in friends %}
@@ -161,12 +161,12 @@
                  style="border-top:1px solid var(--border);">
                 <div>
                     <label for="id_image_profile" class="btn-ghost btn btn-sm" style="cursor:pointer;">
-                        <i class="bi bi-image" style="color:var(--accent-2);"></i> Фото
+                        <i class="bi bi-image" style="color:var(--accent-2);"></i> {{ t.attach_photo }}
                     </label>
                     <input type="file" name="image" id="id_image_profile" accept="image/*">
                 </div>
                 <button type="submit" class="btn-primary-app">
-                    <i class="bi bi-send-fill"></i> Опубликовать
+                    <i class="bi bi-send-fill"></i> {{ t.publish }}
                 </button>
             </div>
         </form>
@@ -184,12 +184,12 @@
                         <span class="post-author-name d-block">
                             {{ post.author.first_name|default:post.author.username }} {{ post.author.last_name }}
                         </span>
-                        <span class="post-meta">{{ post.created_at|timesince }} назад</span>
+                        <span class="post-meta">{{ post.created_at|timesince }}</span>
                     </div>
                 </div>
                 {% if post.author == user or user.is_site_admin %}
                 <form action="{% url 'post_delete' pk=post.pk %}" method="post" style="display:inline"
-                      onsubmit="return confirm('Удалить?')">
+                      onsubmit="return confirm('{{ t.delete_post }}?')">
                     {% csrf_token %}
                     <button type="submit" class="btn-action"><i class="bi bi-trash3" style="color:var(--red);"></i></button>
                 </form>
@@ -198,7 +198,7 @@
 
             <p class="post-content">{{ post.content }}</p>
             {% if post.image %}
-            <img src="{{ post.image.url }}" class="post-image" alt="Изображение поста">
+            <img src="{{ post.image.url }}" class="post-image" alt="Post image">
             {% endif %}
 
             <div class="post-actions-bar">
@@ -223,7 +223,7 @@
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
                                 <a href="{% url 'profile' username=comment.author.username %}" class="comment-author">{{ comment.author.username }}</a>
-                                <span class="comment-time ms-2">{{ comment.created_at|timesince }} ago</span>
+                                <span class="comment-time ms-2">{{ comment.created_at|timesince }}</span>
                             </div>
                             {% if comment.author == user or post.author == user or user.is_site_admin %}
                             <form action="{% url 'comment_delete' pk=comment.pk %}" method="post" style="display:inline">
@@ -261,21 +261,21 @@
                     {% if page_obj.has_previous %}
                     <li class="page-item">
                         <a class="page-link glass text-white px-3 py-2 rounded-3" href="?page={{ page_obj.previous_page_number }}">
-                            <i class="bi bi-chevron-left me-1"></i> Назад
+                            <i class="bi bi-chevron-left me-1"></i> {{ t.prev }}
                         </a>
                     </li>
                     {% endif %}
 
                     <li class="page-item disabled">
                         <span class="page-link glass text-white-50 px-3 py-2 rounded-3">
-                            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+                            {{ t.page }} {{ page_obj.number }} {{ t.of }} {{ page_obj.paginator.num_pages }}
                         </span>
                     </li>
 
                     {% if page_obj.has_next %}
                     <li class="page-item">
                         <a class="page-link glass text-white px-3 py-2 rounded-3" href="?page={{ page_obj.next_page_number }}">
-                            Далее <i class="bi bi-chevron-right ms-1"></i>
+                            {{ t.next }} <i class="bi bi-chevron-right ms-1"></i>
                         </a>
                     </li>
                     {% endif %}
@@ -288,8 +288,7 @@
     <div class="glass">
         <div class="empty-state">
             <div class="icon"><i class="bi bi-card-list"></i></div>
-            <h5>Нет публикаций</h5>
-            <p>{% if is_own_profile %}Создайте первую публикацию выше!{% else %}Этот пользователь ещё ничего не публиковал.{% endif %}</p>
+            <h5>{{ t.no_posts }}</h5>
         </div>
     </div>
     {% endif %}

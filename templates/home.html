@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Лента — ByteLink{% endblock %}
+{% block title %}{{ t.feed }} — ByteLink{% endblock %}
 
 {% block content %}
 <div class="row g-4 mt-1">
@@ -96,14 +96,14 @@
                             <a href="{% url 'profile' username=post.author.username %}" class="post-author-name d-block">
                                 {{ post.author.first_name|default:post.author.username }} {{ post.author.last_name }}
                             </a>
-                            <span class="post-meta">@{{ post.author.username }} · {{ post.created_at|timesince }} назад</span>
+                            <span class="post-meta">@{{ post.author.username }} · {{ post.created_at|timesince }}</span>
                         </div>
                     </div>
                     {% if post.author == user or user.is_site_admin %}
                     <form action="{% url 'post_delete' pk=post.pk %}" method="post" style="display:inline"
-                          onsubmit="return confirm('Удалить публикацию?')">
+                          onsubmit="return confirm('{{ t.delete_post }}?')">
                         {% csrf_token %}
-                        <button type="submit" class="btn-action" title="Удалить">
+                        <button type="submit" class="btn-action" title="{{ t.delete }}">
                             <i class="bi bi-trash3" style="color: var(--red);"></i>
                         </button>
                     </form>
@@ -114,7 +114,7 @@
                 <p class="post-content">{{ post.content }}</p>
 
                 {% if post.image %}
-                <img src="{{ post.image.url }}" class="post-image" alt="Изображение поста">
+                <img src="{{ post.image.url }}" class="post-image" alt="Post image">
                 {% endif %}
 
                 <!-- Actions -->
@@ -144,7 +144,7 @@
                                 <div>
                                     <a href="{% url 'profile' username=comment.author.username %}"
                                        class="comment-author">{{ comment.author.username }}</a>
-                                    <span class="comment-time ms-2">{{ comment.created_at|timesince }} ago</span>
+                                    <span class="comment-time ms-2">{{ comment.created_at|timesince }}</span>
                                 </div>
                                 {% if comment.author == user or post.author == user or user.is_site_admin %}
                                 <form action="{% url 'comment_delete' pk=comment.pk %}" method="post" style="display:inline">
@@ -184,21 +184,21 @@
                         {% if page_obj.has_previous %}
                         <li class="page-item">
                             <a class="page-link glass text-white px-3 py-2 rounded-3" href="?page={{ page_obj.previous_page_number }}">
-                                <i class="bi bi-chevron-left me-1"></i> Назад
+                                <i class="bi bi-chevron-left me-1"></i> {{ t.prev }}
                             </a>
                         </li>
                         {% endif %}
 
                         <li class="page-item disabled">
                             <span class="page-link glass text-white-50 px-3 py-2 rounded-3">
-                                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+                                {{ t.page }} {{ page_obj.number }} {{ t.of }} {{ page_obj.paginator.num_pages }}
                             </span>
                         </li>
 
                         {% if page_obj.has_next %}
                         <li class="page-item">
                             <a class="page-link glass text-white px-3 py-2 rounded-3" href="?page={{ page_obj.next_page_number }}">
-                                Далее <i class="bi bi-chevron-right ms-1"></i>
+                                {{ t.next }} <i class="bi bi-chevron-right ms-1"></i>
                             </a>
                         </li>
                         {% endif %}
@@ -211,8 +211,8 @@
         <div class="glass">
             <div class="empty-state">
                 <div class="icon"><i class="bi bi-wind"></i></div>
-                <h5>Лента пуста</h5>
-                <p>Будьте первым — опубликуйте что-нибудь!</p>
+                <h5>{{ t.empty_feed_title }}</h5>
+                <p>{{ t.empty_feed_text }}</p>
             </div>
         </div>
         {% endif %}

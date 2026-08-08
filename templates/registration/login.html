@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Войти — ByteLink{% endblock %}
+{% block title %}{{ t.login }} — ByteLink{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="min-height: 75vh;">
@@ -10,41 +10,38 @@
                 <div class="brand-icon-lg">
                     <i class="bi bi-hexagon-fill"></i>
                 </div>
-                <h3 style="font-family: var(--font-alt); font-size: 1.4rem;">Войти в ByteLink</h3>
-                <p style="font-size: .85rem; color: var(--text-2); margin-top: .3rem;">
-                    Введите ваши учётные данные
-                </p>
+                <h3 style="font-family: var(--font-alt); font-size: 1.4rem;">{{ t.login }} ByteLink</h3>
             </div>
 
             {% if form.errors %}
             <div class="alert mb-3" role="alert">
                 <i class="bi bi-exclamation-triangle me-2" style="color: var(--red);"></i>
-                Неверное имя пользователя или пароль.
+                {{ t.password }} / {{ t.username }}
             </div>
             {% endif %}
 
             <form method="post" action="{% url 'login' %}">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label for="id_username" class="form-label">Имя пользователя</label>
+                    <label for="id_username" class="form-label">{{ t.username }}</label>
                     <input type="text" name="username" id="id_username" class="form-control"
                            placeholder="username" autofocus required>
                 </div>
                 <div class="mb-4">
-                    <label for="id_password" class="form-label">Пароль</label>
+                    <label for="id_password" class="form-label">{{ t.password }}</label>
                     <input type="password" name="password" id="id_password" class="form-control"
                            placeholder="••••••••" required>
                 </div>
                 <button type="submit" class="btn-primary-app w-100 justify-content-center"
                         style="font-size: .95rem; padding: .7rem 1rem;">
-                    Войти
+                    {{ t.login }}
                 </button>
             </form>
 
             <p class="text-center mt-4 mb-0" style="font-size: .85rem; color: var(--text-2);">
-                Нет аккаунта?
+                {{ t.no_account }}
                 <a href="{% url 'register' %}" style="color: var(--accent-2); font-weight: 600;">
-                    Зарегистрироваться
+                    {{ t.register }}
                 </a>
             </p>
         </div>

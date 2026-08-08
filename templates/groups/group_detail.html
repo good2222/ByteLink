@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}{{ group.title }} — Сообщество ByteLink{% endblock %}
+{% block title %}{{ group.title }} — ByteLink{% endblock %}
 
 {% block content %}
 <div class="row g-4 mt-1">
@@ -18,28 +18,28 @@
                     {% if user.is_authenticated %}
                         {% if is_group_admin %}
                             <a href="{% url 'group_edit' pk=group.pk %}" class="btn-ghost btn btn-sm">
-                                <i class="bi bi-gear-fill me-1"></i> Настройки группы
+                                <i class="bi bi-gear-fill me-1"></i> {{ t.edit_group }}
                             </a>
                         {% endif %}
 
                         {% if group.creator == user %}
                             <form action="{% url 'group_delete' pk=group.pk %}" method="post" style="display:inline;"
-                                  onsubmit="return confirm('Вы уверены, что хотите удалить группу?');">
+                                  onsubmit="return confirm('{{ t.delete_group }}?');">
                                 {% csrf_token %}
                                 <button type="submit" class="btn-ghost btn btn-sm" style="color:var(--red) !important;">
-                                    <i class="bi bi-trash3 me-1"></i> Удалить
+                                    <i class="bi bi-trash3 me-1"></i> {{ t.delete }}
                                 </button>
                             </form>
                         {% else %}
                             <form action="{% url 'group_join' pk=group.pk %}" method="post" style="display:inline;">
                                 {% csrf_token %}
                                 {% if is_member %}
-                                    <button type="submit" class="btn-ghost btn btn-sm" onclick="return confirm('Выйти из группы?')">
-                                        <i class="bi bi-box-arrow-right me-1"></i> Выйти из группы
+                                    <button type="submit" class="btn-ghost btn btn-sm" onclick="return confirm('{{ t.leave_group }}?')">
+                                        <i class="bi bi-box-arrow-right me-1"></i> {{ t.leave_group }}
                                     </button>
                                 {% else %}
                                     <button type="submit" class="btn-primary-app btn btn-sm">
-                                        <i class="bi bi-person-plus-fill me-1"></i> Вступить в группу
+                                        <i class="bi bi-person-plus-fill me-1"></i> {{ t.join_group }}
                                     </button>
                                 {% endif %}
                             </form>
@@ -52,15 +52,15 @@
             <div class="mt-3">
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <h2 class="mb-0" style="font-size:1.35rem;">{{ group.title }}</h2>
-                    <span class="pill"><i class="bi bi-shield-check me-1"></i>Сообщество</span>
+                    <span class="pill"><i class="bi bi-shield-check me-1"></i>{{ t.groups }}</span>
                 </div>
                 <p style="font-size:.9rem; color:var(--text-2); margin-top:.4rem;">{{ group.description }}</p>
 
                 <!-- Stats & Meta -->
                 <div class="d-flex flex-wrap gap-4 mt-3" style="font-size:.8rem; color:var(--text-3);">
-                    <span><i class="bi bi-people-fill me-1"></i><strong>{{ group.members_count }}</strong> участников</span>
-                    <span><i class="bi bi-person me-1"></i>Создатель: <a href="{% url 'profile' username=group.creator.username %}" style="color:var(--accent-2);">@{{ group.creator.username }}</a></span>
-                    <span><i class="bi bi-calendar3 me-1"></i>Создана {{ group.created_at|date:"d.m.Y" }}</span>
+                    <span><i class="bi bi-people-fill me-1"></i><strong>{{ group.members_count }}</strong> {{ t.subscribers }}</span>
+                    <span><i class="bi bi-person me-1"></i>@{{ group.creator.username }}</span>
+                    <span><i class="bi bi-calendar3 me-1"></i>{{ group.created_at|date:"d.m.Y" }}</span>
                 </div>
             </div>
         </div>
@@ -86,21 +86,15 @@
                     <div class="d-flex justify-content-between align-items-center mt-3 pt-3" style="border-top:1px solid var(--border);">
                         <div>
                             <label for="id_image_group" class="btn-ghost btn btn-sm" style="cursor:pointer;">
-                                <i class="bi bi-image" style="color:var(--accent-2);"></i> Фото
+                                <i class="bi bi-image" style="color:var(--accent-2);"></i> {{ t.attach_photo }}
                             </label>
                             <input type="file" name="image" id="id_image_group" accept="image/*">
                         </div>
                         <button type="submit" class="btn-primary-app">
-                            <i class="bi bi-send-fill"></i> Опубликовать в группе
+                            <i class="bi bi-send-fill"></i> {{ t.publish }}
                         </button>
                     </div>
                 </form>
-            </div>
-            {% else %}
-            <div class="glass p-3 mb-4 text-center fade-up">
-                <p style="color:var(--text-3); font-size:.85rem; margin:0;">
-                    <i class="bi bi-lock me-1"></i>Вступайте в группу, чтобы публиковать посты и общаться с участниками!
-                </p>
             </div>
             {% endif %}
 
@@ -117,12 +111,12 @@
                                 <a href="{% url 'profile' username=post.author.username %}" class="post-author-name d-block">
                                     {{ post.author.first_name|default:post.author.username }} {{ post.author.last_name }}
                                 </a>
-                                <span class="post-meta">{{ post.created_at|timesince }} назад</span>
+                                <span class="post-meta">{{ post.created_at|timesince }}</span>
                             </div>
                         </div>
                         {% if post.author == user or is_group_admin or user.is_site_admin %}
                         <form action="{% url 'post_delete' pk=post.pk %}" method="post" style="display:inline"
-                              onsubmit="return confirm('Удалить?')">
+                              onsubmit="return confirm('{{ t.delete_post }}?')">
                             {% csrf_token %}
                             <button type="submit" class="btn-action"><i class="bi bi-trash3" style="color:var(--red);"></i></button>
                         </form>
@@ -131,7 +125,7 @@
 
                     <p class="post-content">{{ post.content }}</p>
                     {% if post.image %}
-                    <img src="{{ post.image.url }}" class="post-image" alt="Изображение поста">
+                    <img src="{{ post.image.url }}" class="post-image" alt="Post image">
                     {% endif %}
 
                     <div class="post-actions-bar">
@@ -157,7 +151,7 @@
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div>
                                         <a href="{% url 'profile' username=comment.author.username %}" class="comment-author">{{ comment.author.username }}</a>
-                                        <span class="comment-time ms-2">{{ comment.created_at|timesince }} назад</span>
+                                        <span class="comment-time ms-2">{{ comment.created_at|timesince }}</span>
                                     </div>
                                     {% if comment.author == user or post.author == user or is_group_admin or user.is_site_admin %}
                                     <form action="{% url 'comment_delete' pk=comment.pk %}" method="post" style="display:inline">
@@ -192,8 +186,7 @@
             <div class="glass fade-up">
                 <div class="empty-state">
                     <div class="icon"><i class="bi bi-card-list"></i></div>
-                    <h5>В группе пока нет постов</h5>
-                    <p>{% if is_member %}Опубликуйте первый пост выше!{% else %}Вступите в группу, чтобы написать пост.{% endif %}</p>
+                    <h5>{{ t.no_posts }}</h5>
                 </div>
             </div>
             {% endif %}
@@ -204,7 +197,7 @@
         <div class="col-lg-4 col-12">
             <div class="glass p-3 fade-up">
                 <h6 style="font-family:var(--font-alt); margin-bottom:.8rem;">
-                    <i class="bi bi-people me-1"></i>Участники <span style="color:var(--text-3);">({{ memberships|length }})</span>
+                    <i class="bi bi-people me-1"></i>{{ t.group_members }} <span style="color:var(--text-3);">({{ memberships|length }})</span>
                 </h6>
                 <div class="d-flex flex-column gap-2">
                     {% for m in memberships %}

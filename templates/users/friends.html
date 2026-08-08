@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Друзья — ByteLink{% endblock %}
+{% block title %}{{ t.friends }} — ByteLink{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-2">
@@ -11,9 +11,9 @@
              style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);">
         <h4 style="font-family:var(--font-alt); margin:0;">
             {% if profile_user == user %}
-                Мои друзья
+                {{ t.my_friends }}
             {% else %}
-                Друзья <a href="{% url 'profile' username=profile_user.username %}" style="color:var(--accent-2);">{{ profile_user.username }}</a>
+                {{ t.friends }} <a href="{% url 'profile' username=profile_user.username %}" style="color:var(--accent-2);">{{ profile_user.username }}</a>
             {% endif %}
             <span style="color:var(--text-3); font-size:.9rem;">({{ friends|length }})</span>
         </h4>
@@ -23,10 +23,10 @@
     {% if profile_user == user %}
     <div class="d-flex gap-2 mb-4 fade-up">
         <a href="{% url 'my_friends' %}" class="btn-primary-app btn btn-sm">
-            <i class="bi bi-people-fill me-1"></i> Все друзья
+            <i class="bi bi-people-fill me-1"></i> {{ t.my_friends }}
         </a>
         <a href="{% url 'friend_requests' %}" class="btn-ghost btn btn-sm position-relative">
-            <i class="bi bi-inbox-fill me-1"></i> Заявки в друзья
+            <i class="bi bi-inbox-fill me-1"></i> {{ t.incoming_requests }}
             {% with cnt=user.get_pending_received_count %}
             {% if cnt %}
             <span class="badge rounded-pill ms-1" style="background:var(--red); font-size:.65rem;">{{ cnt }}</span>
@@ -34,7 +34,7 @@
             {% endwith %}
         </a>
         <a href="{% url 'user_search' %}" class="btn-ghost btn btn-sm">
-            <i class="bi bi-search me-1"></i> Найти людей
+            <i class="bi bi-search me-1"></i> {{ t.search }}
         </a>
     </div>
     {% endif %}
@@ -66,7 +66,7 @@
                 </div>
                 <div class="mt-3">
                     <a href="{% url 'profile' username=friend.username %}" class="btn-ghost btn btn-sm w-100" style="font-size:.78rem;">
-                        Профиль
+                        {{ t.my_profile }}
                     </a>
                 </div>
             </div>
@@ -77,11 +77,10 @@
     <div class="glass fade-up">
         <div class="empty-state">
             <div class="icon"><i class="bi bi-people"></i></div>
-            <h5>Список друзей пуст</h5>
-            <p>{% if profile_user == user %}У вас пока нет подтверждённых друзей. Найдите людей через поиск или примите заявки!{% else %}У этого пользователя пока нет друзей.{% endif %}</p>
+            <h5>{{ t.no_friends }}</h5>
             {% if profile_user == user %}
             <a href="{% url 'user_search' %}" class="btn-primary-app mt-2" style="display:inline-flex;">
-                <i class="bi bi-search me-1"></i> Найти людей
+                <i class="bi bi-search me-1"></i> {{ t.search }}
             </a>
             {% endif %}
         </div>

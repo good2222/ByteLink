@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Поиск людей — ByteLink{% endblock %}
+{% block title %}{{ t.search }} — ByteLink{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-2">
@@ -7,16 +7,16 @@
 
     <!-- Header -->
     <h4 class="mb-3 fade-up" style="font-family:var(--font-alt);">
-        <i class="bi bi-people-fill me-2" style="color:var(--accent-2);"></i>Друзья
+        <i class="bi bi-people-fill me-2" style="color:var(--accent-2);"></i>{{ t.friends }}
     </h4>
 
     <!-- Navigation Tabs -->
     <div class="d-flex gap-2 mb-4 fade-up">
         <a href="{% url 'my_friends' %}" class="btn-ghost btn btn-sm">
-            <i class="bi bi-people-fill me-1"></i> Все друзья
+            <i class="bi bi-people-fill me-1"></i> {{ t.my_friends }}
         </a>
         <a href="{% url 'friend_requests' %}" class="btn-ghost btn btn-sm position-relative">
-            <i class="bi bi-inbox-fill me-1"></i> Заявки в друзья
+            <i class="bi bi-inbox-fill me-1"></i> {{ t.incoming_requests }}
             {% with cnt=user.get_pending_received_count %}
             {% if cnt %}
             <span class="badge rounded-pill ms-1" style="background:var(--red); font-size:.65rem;">{{ cnt }}</span>
@@ -24,17 +24,17 @@
             {% endwith %}
         </a>
         <a href="{% url 'user_search' %}" class="btn-primary-app btn btn-sm">
-            <i class="bi bi-search me-1"></i> Найти людей
+            <i class="bi bi-search me-1"></i> {{ t.search }}
         </a>
     </div>
 
     <!-- Search form -->
     <div class="glass p-4 mb-4 fade-up">
         <form action="{% url 'user_search' %}" method="get" class="d-flex gap-2">
-            <input type="text" name="q" class="form-control" placeholder="Имя, фамилия или @username"
+            <input type="text" name="q" class="form-control" placeholder="{{ t.search_placeholder }}"
                    value="{{ query }}" autofocus>
             <button type="submit" class="btn-primary-app flex-shrink-0">
-                <i class="bi bi-search me-1"></i> Найти
+                <i class="bi bi-search me-1"></i> {{ t.search }}
             </button>
         </form>
     </div>
@@ -43,7 +43,7 @@
     {% if query %}
         {% if results %}
         <h6 class="mb-3 fade-up" style="color:var(--text-3); font-size:.8rem; text-transform:uppercase; letter-spacing:.08em;">
-            Найдено: {{ results|length }}
+            {{ t.search_results }}: {{ results|length }}
         </h6>
         {% for u in results %}
         <div class="glass p-4 mb-3 d-flex align-items-center justify-content-between gap-3 fade-up">
@@ -66,7 +66,7 @@
                 </div>
             </div>
             <a href="{% url 'profile' username=u.username %}" class="btn-ghost btn btn-sm flex-shrink-0">
-                Профиль
+                {{ t.my_profile }}
             </a>
         </div>
         {% endfor %}
@@ -74,8 +74,8 @@
         <div class="glass fade-up">
             <div class="empty-state">
                 <div class="icon"><i class="bi bi-search"></i></div>
-                <h5>Ничего не найдено</h5>
-                <p>Попробуйте другой запрос: "{{ query }}"</p>
+                <h5>{{ t.no_results }}</h5>
+                <p>"{{ query }}"</p>
             </div>
         </div>
         {% endif %}
@@ -83,8 +83,8 @@
     <div class="glass fade-up">
         <div class="empty-state">
             <div class="icon"><i class="bi bi-person-search"></i></div>
-            <h5>Найдите людей</h5>
-            <p>Введите имя или username в строку поиска выше.</p>
+            <h5>{{ t.search }}</h5>
+            <p>{{ t.search_placeholder }}</p>
         </div>
     </div>
     {% endif %}

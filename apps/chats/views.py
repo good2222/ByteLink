@@ -6,6 +6,13 @@ from django.contrib.auth import get_user_model
 
 from .models import ChatRoom, ChatMessage
 
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from apps.chats.models import ChatRoom
+from .serializers import MessageSerializer
+
+
 User = get_user_model()
 
 
@@ -56,3 +63,17 @@ class ChatDetailView(LoginRequiredMixin, DetailView):
         # Передаем вашего собеседника
         context['other_user'] = self.object.get_other_user(self.request.user)
         return context
+
+# 4. API для получения сообщений чата
+class ChatMessageListAPIView(ListAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated] 
+    def get_queryset(self):
+      
+        chat_room = get_object_or_404(
+            ChatRoom, 
+            pk=self.kwargs['pk'], 
+            participants=self.request.user
+        )
+
+        return chat_room.messages.select_related('sender').all()

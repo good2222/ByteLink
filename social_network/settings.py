@@ -31,7 +31,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne',  # Daphne must be listed before django.contrib.staticfiles
+    'daphne',  
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     
     # Third party apps
     'channels',
+    'rest_framework',
     
     # Custom project apps
     'apps.users.apps.UsersConfig',
@@ -53,7 +54,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',  # i18n language switcher middleware
+    'django.middleware.locale.LocaleMiddleware',  
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -85,7 +86,6 @@ WSGI_APPLICATION = 'social_network.wsgi.application'
 ASGI_APPLICATION = 'social_network.asgi.application'
 
 
-# Database Configuration
 DB_ENGINE = env('DB_ENGINE', default='mysql')
 
 if DB_ENGINE == 'sqlite':

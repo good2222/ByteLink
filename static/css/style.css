@@ -614,3 +614,45 @@ input[type="file"] { display: none !important; }
   border-color: var(--border-glow) !important;
 }
 
+/* --------------------------------------------------------------------------
+   16. Custom Pagination Bar
+   -------------------------------------------------------------------------- */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+}
+
+.page-status-badge {
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  padding: .5rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: .84rem;
+  font-weight: 500;
+  backdrop-filter: blur(12px);
+}
+
+.page-nav-btn {
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid var(--border);
+  color: var(--text-1) !important;
+  padding: .5rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: .84rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  transition: all .2s ease;
+  text-decoration: none;
+}
+
+.page-nav-btn:hover {
+  background: rgba(255, 255, 255, .16);
+  border-color: rgba(255, 255, 255, .3);
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+

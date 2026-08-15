@@ -65,9 +65,16 @@
                     {% endif %}
                 </div>
             </div>
-            <a href="{% url 'profile' username=u.username %}" class="btn-ghost btn btn-sm flex-shrink-0">
-                {{ t.my_profile }}
-            </a>
+            <div class="d-flex gap-2 flex-shrink-0">
+                {% if u != user %}
+                <a href="{% url 'start_chat' username=u.username %}" class="btn-primary-app btn btn-sm">
+                    <i class="bi bi-chat-text-fill me-1"></i> {{ t.write_message }}
+                </a>
+                {% endif %}
+                <a href="{% url 'profile' username=u.username %}" class="btn-ghost btn btn-sm">
+                    {{ t.profile }}
+                </a>
+            </div>
         </div>
         {% endfor %}
         {% else %}

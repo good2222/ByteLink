@@ -64,9 +64,12 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="mt-3">
-                    <a href="{% url 'profile' username=friend.username %}" class="btn-ghost btn btn-sm w-100" style="font-size:.78rem;">
-                        {{ t.my_profile }}
+                <div class="d-flex gap-2 mt-3">
+                    <a href="{% url 'start_chat' username=friend.username %}" class="btn-primary-app btn btn-sm flex-grow-1" style="font-size:.78rem;">
+                        <i class="bi bi-chat-text-fill me-1"></i> {{ t.write_message }}
+                    </a>
+                    <a href="{% url 'profile' username=friend.username %}" class="btn-ghost btn btn-sm" style="font-size:.78rem;">
+                        {{ t.profile }}
                     </a>
                 </div>
             </div>

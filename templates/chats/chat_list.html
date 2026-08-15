@@ -18,7 +18,7 @@
                 <div class="p-2" style="max-height:480px; overflow-y:auto;">
                     {% if chat_rooms %}
                         {% for room in chat_rooms %}
-                        {% with other_user=room.get_other_user|default:user %}
+                        {% with other_user=room.other_user %}
                         <a href="{% url 'chat_detail' pk=room.pk %}"
                            class="d-flex align-items-center gap-3 p-3 text-decoration-none rounded-3 mb-1"
                            style="background:rgba(255,255,255,.03); border:1px solid var(--border); transition:all .2s;">

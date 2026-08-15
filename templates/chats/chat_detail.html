@@ -17,7 +17,7 @@
                 </div>
                 <div class="p-2" style="max-height:500px; overflow-y:auto;">
                     {% for room in chat_rooms %}
-                    {% with partner=room.get_other_user|default:user %}
+                    {% with partner=room.other_user %}
                     <a href="{% url 'chat_detail' pk=room.pk %}"
                        class="d-flex align-items-center gap-3 p-3 text-decoration-none rounded-3 mb-1
                               {% if room.pk == chat_room.pk %}active-chat{% endif %}"

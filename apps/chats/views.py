@@ -24,7 +24,13 @@ class ChatListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         # Возвращает только те чаты, где состоит текущий пользователь
-        return self.request.user.chat_rooms.all()
+        return self.request.user.chat_rooms.prefetch_related('participants', 'messages').all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for room in context['chat_rooms']:
+            room.other_user = room.get_other_user(self.request.user)
+        return context
 
 
 # 2. Начать чат с пользователем (по его username или ID)
@@ -58,9 +64,10 @@ class ChatDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Передаем список всех ваших диалогов для бокового меню слева
-        context['chat_rooms'] = self.request.user.chat_rooms.all()
-        # Передаем вашего собеседника
+        chat_rooms = list(self.request.user.chat_rooms.prefetch_related('participants', 'messages').all())
+        for room in chat_rooms:
+            room.other_user = room.get_other_user(self.request.user)
+        context['chat_rooms'] = chat_rooms
         context['other_user'] = self.object.get_other_user(self.request.user)
         return context
 

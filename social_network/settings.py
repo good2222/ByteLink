@@ -2,10 +2,8 @@ import os
 from pathlib import Path
 import environ
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Initialize environment variables
 env = environ.Env(
     DEBUG=(bool, False),
     SECRET_KEY=(str, 'django-insecure-default-key-for-bytelink-2026'),
@@ -17,7 +15,6 @@ env = environ.Env(
     DB_PORT=(str, '3306'),
 )
 
-# Read the .env file if it exists
 env_file = BASE_DIR / '.env'
 if env_file.exists():
     environ.Env.read_env(env_file)
@@ -28,7 +25,6 @@ DEBUG = env.bool('DEBUG', default=False)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 
-# Application definition
 
 INSTALLED_APPS = [
     'daphne',  
@@ -39,11 +35,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    # Third party apps
     'channels',
     'rest_framework',
     
-    # Custom project apps
     'apps.users.apps.UsersConfig',
     'apps.posts.apps.PostsConfig',
     'apps.chats.apps.ChatsConfig',
@@ -111,7 +105,6 @@ else:
     }
 
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -128,7 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization & Language Switcher (RU / UK)
 LANGUAGE_CODE = 'ru'
 LANGUAGES = [
     ('ru', 'Русский'),
@@ -140,32 +132,26 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media files (User uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# Custom User Model
 AUTH_USER_MODEL = 'users.CustomUser'
 
 
-# Channel Layers for WebSockets (InMemory for easy local development without Redis)
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
 
-# Auth settings
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'

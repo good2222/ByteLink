@@ -6,7 +6,6 @@ User = get_user_model()
 
 class CustomUserTests(TestCase):
     def test_create_user(self):
-        # Test CustomUser creation
         user = User.objects.create_user(
             username='testuser',
             email='test@example.com',
@@ -22,9 +21,6 @@ class CustomUserTests(TestCase):
         self.assertEqual(str(user), 'testuser')
 
     def test_create_first_user_as_admin(self):
-        # The save method on CustomUserCreationForm sets the first user as admin.
-        # But programmatically created users via create_user do not go through forms.
-        # Let's test the RegisterView form-based creation.
         url = reverse('register')
         data = {
             'username': 'adminuser',
@@ -33,7 +29,7 @@ class CustomUserTests(TestCase):
             'password2': 'adminpassword123'
         }
         response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 302) # Redirect to home
+        self.assertEqual(response.status_code, 302) 
         
         user = User.objects.get(username='adminuser')
         self.assertEqual(user.role, 'admin')
@@ -65,8 +61,6 @@ class UserViewsTests(TestCase):
         edit_url = reverse('profile_edit')
         response = self.client.get(edit_url)
         self.assertEqual(response.status_code, 200)
-        
-        # Post new profile data
         data = {
             'first_name': 'Johnny',
             'last_name': 'Doe',
@@ -76,7 +70,7 @@ class UserViewsTests(TestCase):
             'website': 'https://johnny.dev'
         }
         response = self.client.post(edit_url, data)
-        self.assertEqual(response.status_code, 302) # Redirect to profile
+        self.assertEqual(response.status_code, 302) 
         
         self.user.refresh_from_db()
         self.assertEqual(self.user.first_name, 'Johnny')

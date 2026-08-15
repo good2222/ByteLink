@@ -37,7 +37,7 @@
             <form action="{% url 'user_search' %}" method="get" class="d-flex mx-auto my-2 my-lg-0" style="max-width: 320px; width: 100%;">
                 <div class="input-group input-group-sm">
                     <input type="text" name="q" class="form-control"
-                           placeholder="Найти пользователей..."
+                           placeholder="{{ t.search_placeholder }}"
                            value="{{ request.GET.q|default:'' }}"
                            style="background: rgba(255,255,255,.07); border: 1px solid var(--border);
                                   color: var(--text-1); border-radius: var(--radius-sm) 0 0 var(--radius-sm);">

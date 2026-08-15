@@ -67,14 +67,14 @@
             </div>
             <div class="d-flex gap-2 flex-shrink-0">
                 {% if u == user %}
-                <a href="{% url 'profile' username=u.username %}" class="btn-primary-app btn btn-sm">
+                <a href="{% url 'profile' username=u.username %}" class="btn-primary-app btn btn-sm justify-content-center text-center">
                     <i class="bi bi-person-fill me-1"></i> {{ t.my_profile }}
                 </a>
                 {% else %}
-                <a href="{% url 'start_chat' username=u.username %}" class="btn-primary-app btn btn-sm">
+                <a href="{% url 'start_chat' username=u.username %}" class="btn-primary-app btn btn-sm justify-content-center text-center">
                     <i class="bi bi-chat-text-fill me-1"></i> {{ t.write_message }}
                 </a>
-                <a href="{% url 'profile' username=u.username %}" class="btn-ghost btn btn-sm">
+                <a href="{% url 'profile' username=u.username %}" class="btn-ghost btn btn-sm justify-content-center text-center">
                     {{ t.profile }}
                 </a>
                 {% endif %}

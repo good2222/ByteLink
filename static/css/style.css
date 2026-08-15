@@ -194,13 +194,15 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
   color: #000000 !important;
   font-weight: 700;
   font-size: .875rem;
-  padding: .55rem 1.2rem;
+  padding: .55rem 1.35rem;
   border-radius: var(--radius-sm);
   box-shadow: 0 4px 16px rgba(255,255,255,.20);
   transition: all .22s;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   gap: .4rem;
 }
 .btn-primary-app:hover {
@@ -223,6 +225,8 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-alt); letter-spacing: -.02em; }
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   gap: .4rem;
 }
 .btn-ghost:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.25); }

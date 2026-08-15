@@ -55,16 +55,22 @@ class HomeView(LoginRequiredMixin, TemplateView):
         context['post_form'] = PostForm()
         context['comment_form'] = CommentForm()
 
-        friends = self.request.user.get_friends()
+        feed_filter = self.request.GET.get('feed', 'all')
 
-        posts_qs = (
+        base_qs = (
             Post.objects
             .select_related('author')
             .prefetch_related('likes', 'comments__author')
-            .filter(Q(author=self.request.user) | Q(author__in=friends))
             .annotate(like_count=Count('likes'))
-            .order_by('-like_count', '-created_at')
         )
+
+        if feed_filter == 'friends':
+            friends = self.request.user.get_friends()
+            posts_qs = base_qs.filter(Q(author=self.request.user) | Q(author__in=friends))
+        else:
+            posts_qs = base_qs.all()
+
+        posts_qs = posts_qs.order_by('-created_at')
 
         paginator = Paginator(posts_qs, 10)  # 10 постов на страницу
         page_number = self.request.GET.get('page')
@@ -76,6 +82,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
         context['feed_posts'] = page_obj
         context['page_obj'] = page_obj
         context['is_paginated'] = page_obj.has_other_pages()
+        context['active_feed'] = feed_filter
         return context
 
 

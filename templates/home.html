@@ -82,6 +82,16 @@
             </form>
         </div>
 
+        <!-- Feed Filter Tabs -->
+        <div class="d-flex gap-2 mb-4 fade-up">
+            <a href="?feed=all" class="btn btn-sm {% if active_feed == 'all' %}btn-primary-app{% else %}btn-ghost{% endif %}">
+                <i class="bi bi-globe me-1"></i> {{ t.all_feed }}
+            </a>
+            <a href="?feed=friends" class="btn btn-sm {% if active_feed == 'friends' %}btn-primary-app{% else %}btn-ghost{% endif %}">
+                <i class="bi bi-people-fill me-1"></i> {{ t.friends_feed }}
+            </a>
+        </div>
+
         <!-- Feed -->
         {% if feed_posts %}
             {% for post in feed_posts %}
@@ -183,7 +193,7 @@
                     <ul class="pagination pagination-sm m-0 gap-2">
                         {% if page_obj.has_previous %}
                         <li class="page-item">
-                            <a class="page-link glass text-white px-3 py-2 rounded-3" href="?page={{ page_obj.previous_page_number }}">
+                            <a class="page-link glass text-white px-3 py-2 rounded-3" href="?page={{ page_obj.previous_page_number }}&feed={{ active_feed }}">
                                 <i class="bi bi-chevron-left me-1"></i> {{ t.prev }}
                             </a>
                         </li>
@@ -197,7 +207,7 @@
 
                         {% if page_obj.has_next %}
                         <li class="page-item">
-                            <a class="page-link glass text-white px-3 py-2 rounded-3" href="?page={{ page_obj.next_page_number }}">
+                            <a class="page-link glass text-white px-3 py-2 rounded-3" href="?page={{ page_obj.next_page_number }}&feed={{ active_feed }}">
                                 {{ t.next }} <i class="bi bi-chevron-right ms-1"></i>
                             </a>
                         </li>

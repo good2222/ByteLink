@@ -34,7 +34,7 @@
     {% if my_groups and not query %}
     <div class="mb-4 fade-up">
         <h6 class="mb-3" style="color:var(--text-3); font-size:.8rem; text-transform:uppercase; letter-spacing:.08em;">
-            <i class="bi bi-star-fill me-1" style="color:var(--accent-2);"></i> {{ t.no_groups }} ({{ my_groups|length }})
+            <i class="bi bi-star-fill me-1" style="color:var(--accent-2);"></i> {{ t.my_groups }} ({{ my_groups|length }})
         </h6>
         <div class="row g-3">
             {% for g in my_groups %}
@@ -56,7 +56,7 @@
                         </div>
                     </div>
                     <a href="{% url 'group_detail' pk=g.pk %}" class="btn-ghost btn btn-sm w-100 mt-2 text-center" style="font-size:.8rem;">
-                        {{ t.groups }}
+                        {{ t.open }}
                     </a>
                 </div>
             </div>
@@ -107,7 +107,7 @@
 
                 <div class="p-3 pt-0 d-flex gap-2">
                     <a href="{% url 'group_detail' pk=g.pk %}" class="btn-ghost btn btn-sm flex-grow-1 text-center">
-                        {{ t.groups }}
+                        {{ t.open_group }}
                     </a>
                 </div>
             </div>

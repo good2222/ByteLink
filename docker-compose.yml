@@ -1,0 +1,19 @@
+services:
+  web:
+    build: .
+    container_name: bytelink_web
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-docker-key-bytelink-2026
+      - ALLOWED_HOSTS=*
+      - DB_ENGINE=sqlite
+    volumes:
+      - ./media:/app/media
+      - ./db.sqlite3:/app/db.sqlite3
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+            python manage.py collectstatic --noinput &&
+            daphne -b 0.0.0.0 -p 8000 social_network.asgi:application"
